@@ -35,7 +35,13 @@ class FloParser(Parser):
     def expr(self, p):
         return arbre_abstrait.Function(p.IDENTIFIANT, p.expr)  # p.expr = p[2]
 
-    @_('expr "+" expr', 'expr "-" expr', 'expr "*" expr', 'expr "/" expr', 'expr "%" expr')
+    @_(
+        'expr "+" expr',
+        'expr "-" expr',
+        'expr "*" expr',
+        'expr "/" expr',
+        'expr "%" expr',
+    )
     def expr(self, p):
         return arbre_abstrait.Operation(p[1], p[0], p[2])
 
