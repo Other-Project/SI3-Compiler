@@ -9,7 +9,6 @@ class FloLexer(Lexer):
         TYPE,
         INTEGER,
         BOOLEAN,
-        PRINT,
         IF,
         ELSE,
         WHILE,
@@ -54,7 +53,6 @@ class FloLexer(Lexer):
     # cas spéciaux:
     IDENTIFIANT["booleen"] = TYPE
     IDENTIFIANT["entier"] = TYPE
-    IDENTIFIANT["ecrire"] = PRINT
     IDENTIFIANT["si"] = IF
     IDENTIFIANT["sinon"] = ELSE
     IDENTIFIANT["tantque"] = WHILE

@@ -27,13 +27,13 @@ class FloParser(Parser):
         p[1].instructions.insert(0, p[0])
         return p[1]
 
-    @_("ecrire")
+    @_('expr ";"')
     def instruction(self, p):
-        return p[0]
+        return p.expr
 
-    @_('PRINT "(" expr ")" ";"')
-    def ecrire(self, p):
-        return arbre_abstrait.Ecrire(p.expr)  # p.expr = p[2]
+    @_('IDENTIFIANT "(" expr ")"')
+    def expr(self, p):
+        return arbre_abstrait.Function(p.IDENTIFIANT, p.expr)  # p.expr = p[2]
 
     @_('expr "+" expr', 'expr "-" expr', 'expr "*" expr', 'expr "/" expr', 'expr "%" expr')
     def expr(self, p):
