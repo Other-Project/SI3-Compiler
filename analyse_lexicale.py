@@ -7,9 +7,9 @@ class FloLexer(Lexer):
     tokens = {
         IDENTIFIANT,
         TYPE,
-        ENTIER,
-        BOOLEEN,
-        ECRIRE,
+        INTEGER,
+        BOOLEAN,
+        PRINT,
         IF,
         ELSE,
         WHILE,
@@ -38,7 +38,7 @@ class FloLexer(Lexer):
     NE = r"!="
 
     @_(r"0|[1-9][0-9]*")
-    def ENTIER(self, t):
+    def INTEGER(self, t):
         t.value = int(t.value)
         return t
 
@@ -52,9 +52,9 @@ class FloLexer(Lexer):
     IDENTIFIANT = r"[a-zA-Z][a-zA-Z0-9_]*"  # en général, variable ou nom de fonction
 
     # cas spéciaux:
-    IDENTIFIANT["boolean"] = TYPE
+    IDENTIFIANT["booleen"] = TYPE
     IDENTIFIANT["entier"] = TYPE
-    IDENTIFIANT["ecrire"] = ECRIRE
+    IDENTIFIANT["ecrire"] = PRINT
     IDENTIFIANT["si"] = IF
     IDENTIFIANT["sinon"] = ELSE
     IDENTIFIANT["tantque"] = WHILE
