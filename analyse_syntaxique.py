@@ -51,7 +51,11 @@ class FloParser(Parser):
 
     @_("INTEGER")
     def expr(self, p):
-        return arbre_abstrait.Integer(p.INTEGER)  # p.INTEGER = p[0]
+        return arbre_abstrait.Integer(p.INTEGER)
+
+    @_("BOOLEAN")
+    def expr(self, p):
+        return arbre_abstrait.Boolean(p.BOOLEAN)
 
     def error(self, p):
         print("Erreur de syntaxe", p, file=sys.stderr)
