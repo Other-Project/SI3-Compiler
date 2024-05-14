@@ -4,7 +4,7 @@ Affiche une chaine de caractère avec une certaine identation
 def afficher(s,indent=0):
 	print(" "*indent+s)
 	
-class Programme:
+class Program:
 	def __init__(self,listeInstructions):
 		self.listeInstructions = listeInstructions
 	def afficher(self,indent=0):
@@ -12,7 +12,7 @@ class Programme:
 		self.listeInstructions.afficher(indent+1)
 		afficher("</program>",indent)
 
-class ListeInstructions:
+class Instructions:
 	def __init__(self):
 		self.instructions = []
 	def afficher(self,indent=0):
@@ -26,9 +26,9 @@ class Function:
 		self.fct = fct
 		self.exp = exp
 	def afficher(self,indent=0):
-		afficher(f"<fonction name=\"{self.fct}\">",indent)
+		afficher(f"<function name=\"{self.fct}\">",indent)
 		self.exp.afficher(indent+1)
-		afficher("</fonction>",indent)
+		afficher("</function>",indent)
 		
 class Operation:
 	def __init__(self,op,exp1,exp2):
@@ -40,7 +40,8 @@ class Operation:
 		self.exp1.afficher(indent+1)
 		self.exp2.afficher(indent+1)
 		afficher("</operation>",indent)
-class Entier:
+
+class Integer:
 	def __init__(self,valeur):
 		self.valeur = valeur
 	def afficher(self,indent=0):

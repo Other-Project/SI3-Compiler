@@ -14,11 +14,11 @@ class FloParser(Parser):
 
     @_("listeInstructions")
     def prog(self, p):
-        return arbre_abstrait.Programme(p[0])
+        return arbre_abstrait.Program(p[0])
 
     @_("instruction")
     def listeInstructions(self, p):
-        l = arbre_abstrait.ListeInstructions()
+        l = arbre_abstrait.Instructions()
         l.instructions.append(p[0])
         return l
 
@@ -51,7 +51,7 @@ class FloParser(Parser):
 
     @_("INTEGER")
     def expr(self, p):
-        return arbre_abstrait.Entier(p.INTEGER)  # p.INTEGER = p[0]
+        return arbre_abstrait.Integer(p.INTEGER)  # p.INTEGER = p[0]
 
     def error(self, p):
         print("Erreur de syntaxe", p, file=sys.stderr)
