@@ -49,6 +49,10 @@ class FloParser(Parser):
     @_('factor')
     def produit(self, p):
         return p.factor
+
+    @_('"-" factor')
+    def produit(self, p):
+        return arbre_abstrait.Operation('*', arbre_abstrait.Integer(-1), p.factor)
     
     @_('produit "*" factor')
     def produit(self, p):
@@ -74,7 +78,7 @@ class FloParser(Parser):
     def factor(self, p):
         return p.expr
     
-    @_("INTEGER")
+    @_('INTEGER')
     def factor(self, p):
         return arbre_abstrait.Integer(p.INTEGER)
 
