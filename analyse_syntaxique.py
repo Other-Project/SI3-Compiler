@@ -72,7 +72,7 @@ class FloParser(Parser):
     
     @_("IDENTIFIANT")
     def variable(self,p):
-        return p.IDENTIFIANT
+        return arbre_abstrait.Variable(p.IDENTIFIANT)
 
     @_('"(" expr ")"')
     def factor(self, p):

@@ -21,7 +21,7 @@ def erreur(s):
 
 
 """
-Un print qui ne fonctionne que si la variable afficher_table vaut Vrai.
+Un print qui ne fonctionne que si la variable.flo afficher_table vaut Vrai.
 (permet de choisir si on affiche le code assembleur ou la table des symboles)
 """
 
@@ -32,7 +32,7 @@ def printifm(*args, **kwargs):
 
 
 """
-Un print qui ne fonctionne que si la variable afficher_table vaut Vrai.
+Un print qui ne fonctionne que si la variable.flo afficher_table vaut Vrai.
 (permet de choisir si on affiche le code assembleur ou la table des symboles)
 """
 

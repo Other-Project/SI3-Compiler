@@ -48,7 +48,7 @@ class FloLexer(Lexer):
 
         # cas général
 
-    IDENTIFIANT = r"[a-zA-Z][a-zA-Z0-9_]*"  # en général, variable ou nom de fonction
+    IDENTIFIANT = r"[a-zA-Z][a-zA-Z0-9_]*"  # en général, variable.flo ou nom de fonction
 
     # cas spéciaux:
     IDENTIFIANT["booleen"] = TYPE

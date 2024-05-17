@@ -47,6 +47,12 @@ class Integer:
 	def afficher(self,indent=0):
 		afficher(f"<integer value=\"{str(self.valeur)}\" />",indent)
 
+class Variable:
+	def __init__(self,valeur):
+		self.valeur = valeur
+	def afficher(self,indent=0):
+		afficher(f"<variable value=\"{str(self.valeur)}\" />",indent)
+
 class Boolean:
 	def __init__(self,valeur):
 		self.valeur = valeur
