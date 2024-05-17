@@ -62,6 +62,14 @@ class FloParser(Parser):
     def produit(self, p):
         return arbre_abstrait.Operation('%', p[0], p[2])
 
+    @_('variable')
+    def factor(self,p):
+        return p.variable
+    
+    @_("IDENTIFIANT")
+    def variable(self,p):
+        return p.IDENTIFIANT
+
     @_('"(" expr ")"')
     def factor(self, p):
         return p.expr
