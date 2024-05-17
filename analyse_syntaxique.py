@@ -40,21 +40,25 @@ class FloParser(Parser):
         return p.expr
 
     @_(
-        'expr "+" expr',
-        'expr "-" expr',
-        'expr "*" expr',
-        'expr "/" expr',
-        'expr "%" expr',
+        'expr "+" factor',
+        'expr "-" factor',
+        'expr "*" factor',
+        'expr "/" factor',
+        'expr "%" factor',
     )
     def expr(self, p):
         return arbre_abstrait.Operation(p[1], p[0], p[2])
 
-    @_('"(" expr ")"')
+    @_('factor')
     def expr(self, p):
-        return p.expr  # ou p[1]
+        return p.factor
 
+    @_('"(" expr ")"')
+    def factor(self, p):
+        return p.expr
+    
     @_("INTEGER")
-    def expr(self, p):
+    def factor(self, p):
         return arbre_abstrait.Integer(p.INTEGER)
 
     @_("BOOLEAN")
