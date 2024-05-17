@@ -10,7 +10,7 @@ class FloParser(Parser):
 
     # Règles gramaticales et actions associées
 
-    # debugfile = 'parser.out'
+    debugfile = 'parser.out'
 
     @_("instructions")
     def prog(self, p):
