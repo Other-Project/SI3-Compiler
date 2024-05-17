@@ -1,3 +1,9 @@
 booleen bool = Vrai;
 entier value = 2;
-ecrire(bool ou value == 1);
+ecrire(value == 2);
+ecrire(value >= 2);
+ecrire(value <= 2);
+ecrire(value != 2);
+ecrire(value > 2);
+ecrire(value < 2);
+#ecrire(bool ou value == 1);

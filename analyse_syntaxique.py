@@ -10,7 +10,7 @@ class FloParser(Parser):
 
     # Règles gramaticales et actions associées
 
-    debugfile = 'parser.out'
+    debugfile = "parser.out"
 
     @_("instructions")
     def prog(self, p):
@@ -35,56 +35,60 @@ class FloParser(Parser):
     def instruction(self, p):
         return p.expr
 
-    @_(
-        'expr "+" produit',
-        'expr "-" produit',
-    )
-    def expr(self, p):
+    @_("somme")
+    def boolean(self, p):
+        return p.somme
+
+    @_('somme "+" produit', 'somme "-" produit')
+    def somme(self, p):
         return arbre_abstrait.Operation(p[1], p[0], p[2])
-    
-    @_('produit')
-    def expr(self, p):
+
+    @_("produit")
+    def somme(self, p):
         return p.produit
-    
-    @_('factor')
+
+    @_("factor")
     def produit(self, p):
         return p.factor
 
     @_('"-" factor')
     def produit(self, p):
-        return arbre_abstrait.Operation('*', arbre_abstrait.Integer(-1), p.factor)
-    
-    @_('produit "*" factor')
-    def produit(self, p):
-        return arbre_abstrait.Operation('*', p[0], p[2])
-    
-    @_('produit "/" factor')
-    def produit(self, p):
-        return arbre_abstrait.Operation('/', p[0], p[2])
-    
-    @_('produit "%" factor')
-    def produit(self, p):
-        return arbre_abstrait.Operation('%', p[0], p[2])
+        return arbre_abstrait.Operation("*", arbre_abstrait.Integer(-1), p.factor)
 
-    @_('variable')
-    def factor(self,p):
+    @_('produit "*" factor', 'produit "/" factor', 'produit "%" factor')
+    def produit(self, p):
+        return arbre_abstrait.Operation(p[1], p[0], p[2])
+
+    @_("variable")
+    def factor(self, p):
         return p.variable
-    
+
     @_("IDENTIFIANT")
-    def variable(self,p):
+    def variable(self, p):
         return arbre_abstrait.Variable(p.IDENTIFIANT)
 
     @_('"(" expr ")"')
     def factor(self, p):
         return p.expr
-    
-    @_('INTEGER')
+
+    @_("INTEGER")
     def factor(self, p):
         return arbre_abstrait.Integer(p.INTEGER)
 
     @_("boolean")
     def expr(self, p):
         return p.boolean
+
+    @_(
+        'somme "<" somme',
+        'somme ">" somme',
+        "somme EQ somme",
+        "somme LE somme",
+        "somme GE somme",
+        "somme NE somme",
+    )
+    def boolean(self, p):
+        return arbre_abstrait.Operation(p[1], p[0], p[2])
 
     @_("BOOLEAN")
     def boolean(self, p):
