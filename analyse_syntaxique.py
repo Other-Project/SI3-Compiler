@@ -64,8 +64,12 @@ class FloParser(Parser):
     def factor(self, p):
         return arbre_abstrait.Integer(p.INTEGER)
 
-    @_("BOOLEAN")
+    @_("boolean")
     def expr(self, p):
+        return p.boolean
+
+    @_("BOOLEAN")
+    def boolean(self, p):
         return arbre_abstrait.Boolean(p.BOOLEAN)
 
     def error(self, p):
