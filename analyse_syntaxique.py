@@ -12,18 +12,18 @@ class FloParser(Parser):
 
     # debugfile = 'parser.out'
 
-    @_("listeInstructions")
+    @_("instructions")
     def prog(self, p):
         return arbre_abstrait.Program(p[0])
 
     @_("instruction")
-    def listeInstructions(self, p):
+    def instructions(self, p):
         l = arbre_abstrait.Instructions()
         l.instructions.append(p[0])
         return l
 
-    @_("instruction listeInstructions")
-    def listeInstructions(self, p):
+    @_("instruction instructions")
+    def instructions(self, p):
         p[1].instructions.insert(0, p[0])
         return p[1]
 
@@ -34,6 +34,10 @@ class FloParser(Parser):
     @_('IDENTIFIANT "(" expr ")"')
     def expr(self, p):
         return arbre_abstrait.Function(p.IDENTIFIANT, p.expr)  # p.expr = p[2]
+
+    @_('TYPE IDENTIFIANT "=" expr')
+    def instruction(self, p):
+        return p.expr
 
     @_(
         'expr "+" expr',
