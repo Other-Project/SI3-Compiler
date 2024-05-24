@@ -6,4 +6,5 @@ ecrire(value <= 2);
 ecrire(value != 2);
 ecrire(value > 2);
 ecrire(value < 2);
-#ecrire(bool ou value == 1);
+ecrire(bool ou value == 1);
+ecrire(bool ou non bool et value == 1);
