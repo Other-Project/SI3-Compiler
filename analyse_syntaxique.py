@@ -33,7 +33,15 @@ class FloParser(Parser):
 
     @_('TYPE IDENTIFIANT "=" expr')
     def instruction(self, p):
-        return p.expr
+        return arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT, p.expr)
+
+    @_('TYPE IDENTIFIANT')
+    def instruction(self, p):
+        return arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT)
+
+    @_('IDENTIFIANT "=" expr')
+    def instruction(self, p):
+        return arbre_abstrait.Assignment(p.IDENTIFIANT, p.expr)
 
     @_("somme")
     def boolean(self, p):

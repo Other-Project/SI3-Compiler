@@ -29,6 +29,26 @@ class Function:
 		afficher(f"<function name=\"{self.fct}\">",indent)
 		self.exp.afficher(indent+1)
 		afficher("</function>",indent)
+
+class Declaration:
+	def __init__(self,type,variable,value=None):
+		self.type = type
+		self.variable = variable
+		self.value = value
+	def afficher(self,indent=0):
+		afficher(f"<declaration name=\"{self.variable}\" type=\"{self.type}\"" + (">" if self.value else "/>"), indent)
+		if self.value:
+			self.value.afficher(indent+1)
+			afficher("</declaration>",indent)
+
+class Assignment:
+	def __init__(self,variable,value):
+		self.variable = variable
+		self.value = value
+	def afficher(self,indent=0):
+		afficher(f"<assignment name=\"{self.variable}\">",indent)
+		self.value.afficher(indent+1)
+		afficher("</assignment>",indent)
 		
 class Operation:
 	def __init__(self,op,exp1,exp2=None):
