@@ -16,13 +16,46 @@ class FloParser(Parser):
     def prog(self, p):
         return arbre_abstrait.Program(p.instructions)
 
+    @_('IF "(" expr ")" "{" instructions "}"')
+    def condition(self, p):
+        return arbre_abstrait.If(p.expr, p.instructions)
+
+    @_("condition")
+    def condition_elseif(self, p):
+        return p.condition
+
+    @_("condition_elseif ELSE condition")
+    def condition_elseif(self, p):
+        p.condition_elseif.elseList.append(arbre_abstrait.Else(p.condition))
+        return p.condition_elseif
+
+    @_("condition_elseif")
+    def condition_else(self, p):
+        return p.condition_elseif
+
+    @_('condition_elseif ELSE "{" instructions "}"')
+    def condition_else(self, p):
+        p.condition_elseif.elseList.append(arbre_abstrait.Else(p.instructions))
+        return p.condition_elseif
+
     @_('instruction ";"')
     def instructions(self, p):
         l = arbre_abstrait.Instructions()
-        l.instructions.append(p.instruction)
+        l.instructions.insert(0, p.instruction)
+        return l
+
+    @_("condition_else")
+    def instructions(self, p):
+        l = arbre_abstrait.Instructions()
+        l.instructions.insert(0, p.condition_else)
         return l
 
     @_('instruction ";" instructions')
+    def instructions(self, p):
+        p.instructions.instructions.insert(0, p.instruction)
+        return p.instructions
+
+    @_('condition_else ";" instructions')
     def instructions(self, p):
         p.instructions.instructions.insert(0, p.instruction)
         return p.instructions
@@ -35,7 +68,7 @@ class FloParser(Parser):
     def instruction(self, p):
         return arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT, p.expr)
 
-    @_('TYPE IDENTIFIANT')
+    @_("TYPE IDENTIFIANT")
     def instruction(self, p):
         return arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT)
 
@@ -101,10 +134,11 @@ class FloParser(Parser):
     @_("BOOLEAN")
     def boolean(self, p):
         return arbre_abstrait.Boolean(p.BOOLEAN)
-    
+
     @_("b_and OR b_or")
     def b_or(self, p):
         return arbre_abstrait.Operation(p[1], p[0], p[2])
+
     @_("b_and")
     def b_or(self, p):
         return p.b_and
@@ -112,13 +146,15 @@ class FloParser(Parser):
     @_("b_not AND b_and")
     def b_and(self, p):
         return arbre_abstrait.Operation(p[1], p[0], p[2])
+
     @_("b_not")
     def b_and(self, p):
         return p.b_not
-    
+
     @_("NOT boolean")
     def b_not(self, p):
         return arbre_abstrait.Operation(p.NOT, p.boolean)
+
     @_("boolean")
     def b_not(self, p):
         return p.boolean

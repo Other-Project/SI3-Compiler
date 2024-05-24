@@ -61,6 +61,26 @@ class Operation:
 		if self.exp2:
 			self.exp2.afficher(indent+1)
 		afficher("</operation>",indent)
+		
+class If:
+	def __init__(self,cond,instructions):
+		self.cond = cond
+		self.instructions = instructions
+		self.elseList = []
+	def afficher(self,indent=0):
+		afficher(f"<if>",indent)
+		self.cond.afficher(indent+1)
+		self.instructions.afficher(indent+1)
+		for elseCond in self.elseList:
+			elseCond.afficher(indent+1)
+		afficher("</if>",indent)
+class Else:
+	def __init__(self,instructions):
+		self.instructions = instructions
+	def afficher(self,indent=0):
+		afficher(f"<else>",indent)
+		self.instructions.afficher(indent+1)
+		afficher("</else>",indent)
 
 class Integer:
 	def __init__(self,valeur):

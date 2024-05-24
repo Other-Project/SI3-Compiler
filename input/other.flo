@@ -1,2 +1,20 @@
 entier a;
 a = 2 + 4*2;
+
+si (a >= 9) {
+    booleen b = Faux ou Vrai et (Vrai ou Faux);
+    ecrire(non b);
+}
+sinon si (a < 2){
+    ecrire(Faux et Vrai);
+}
+sinon {
+    a = 10;
+    booleen b = a >= 6;
+    ecrire(b et Vrai ou Faux);
+#    tanque(b){
+        a = a - 1;
+        b = a >= 6;
+        ecrire(a);
+#    }
+}
