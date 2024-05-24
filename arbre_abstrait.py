@@ -29,6 +29,18 @@ class Function:
 		afficher(f"<function name=\"{self.fct}\">",indent)
 		self.exp.afficher(indent+1)
 		afficher("</function>",indent)
+
+class Args:
+	def __init__(self):
+		self.listArgs = []
+	def afficher(self, indent=0):
+		afficher(f"<arguments>", indent)
+		for i in range(len(self.listArgs)):
+			self.listArgs[i].afficher(indent + 1)
+		afficher("</arguments>", indent)
+	def append(self, expr):
+		self.listArgs.append(expr)
+
 		
 class Operation:
 	def __init__(self,op,exp1,exp2):
