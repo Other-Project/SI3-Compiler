@@ -1,0 +1,35 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			},
+			"problemMatcher": [],
+			"label": "Flo script lexical analysis",
+			"type": "shell",
+			"command": "python analyse_lexicale.py ${file} > output/${fileBasenameNoExtension}.txt"
+		},
+		{
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": [],
+			"label": "Flo script syntactic analysis",
+			"type": "shell",
+			"command": "python analyse_syntaxique.py ${file} > output/${fileBasenameNoExtension}.xml"
+		},
+		{
+			"group": {
+				"kind": "build",
+				"isDefault": false
+			},
+			"problemMatcher": [],
+			"label": "Build Flo script",
+			"type": "shell",
+			"command": "python generation_code.py -arm ${file} > output/${fileBasenameNoExtension}.s"
+		}
+	]
+}
