@@ -134,7 +134,7 @@ Affiche le code arm correspondant au fait d'envoyer la valeur entière d'une exp
 
 
 def gen_ecrire(ecrire):
-    gen_expression(ecrire.exp)  # on calcule et empile la valeur d'expression
+    gen_expression(ecrire.args)  # on calcule et empile la valeur d'expression
     arm_instruction(
         "pop", "{r1}", "", "", ""
     )  # on dépile la valeur d'expression sur r1
