@@ -36,7 +36,7 @@ class Declaration:
 		self.variable = variable
 		self.value = value
 	def afficher(self,indent=0):
-		afficher(f"<declaration name=\"{self.variable}\" type=\"{self.type}\"" + (">" if self.value else "/>"), indent)
+		afficher(f"<declaration name=\"{self.variable}\" type=\"{self.type}\"{("" if self.value else "/")}>", indent)
 		if self.value:
 			self.value.afficher(indent+1)
 			afficher("</declaration>",indent)
@@ -66,16 +66,16 @@ class Integer:
 	def __init__(self,valeur):
 		self.valeur = valeur
 	def afficher(self,indent=0):
-		afficher(f"<integer value=\"{str(self.valeur)}\" />",indent)
+		afficher(f"<integer value=\"{str(self.valeur)}\"/>",indent)
 
 class Variable:
 	def __init__(self,valeur):
 		self.valeur = valeur
 	def afficher(self,indent=0):
-		afficher(f"<variable value=\"{str(self.valeur)}\" />",indent)
+		afficher(f"<variable value=\"{str(self.valeur)}\"/>",indent)
 
 class Boolean:
 	def __init__(self,valeur):
 		self.valeur = valeur
 	def afficher(self,indent=0):
-		afficher(f"<boolean value=\"{str(self.valeur)}\" />",indent)
+		afficher(f"<boolean value=\"{str(self.valeur)}\"/>",indent)
