@@ -30,6 +30,7 @@ class Function:
 		self.exp.afficher(indent+1)
 		afficher("</function>",indent)
 
+
 class Args:
 	def __init__(self):
 		self.listArgs = []
@@ -41,32 +42,52 @@ class Args:
 	def append(self, expr):
 		self.listArgs.append(expr)
 
+class Declaration:
+	def __init__(self,type,variable,value=None):
+		self.type = type
+		self.variable = variable
+		self.value = value
+	def afficher(self,indent=0):
+		afficher(f"<declaration name=\"{self.variable}\" type=\"{self.type}\"{('' if self.value else '/')}>", indent)
+		if self.value:
+			self.value.afficher(indent+1)
+			afficher("</declaration>",indent)
+
+class Assignment:
+	def __init__(self,variable,value):
+		self.variable = variable
+		self.value = value
+	def afficher(self,indent=0):
+		afficher(f"<assignment name=\"{self.variable}\">",indent)
+		self.value.afficher(indent+1)
+		afficher("</assignment>",indent)
 		
 class Operation:
-	def __init__(self,op,exp1,exp2):
+	def __init__(self,op,exp1,exp2=None):
 		self.exp1 = exp1
 		self.op = op
 		self.exp2 = exp2
 	def afficher(self,indent=0):
 		afficher(f"<operation operator=\"{self.op}\">",indent)
 		self.exp1.afficher(indent+1)
-		self.exp2.afficher(indent+1)
+		if self.exp2:
+			self.exp2.afficher(indent+1)
 		afficher("</operation>",indent)
 
 class Integer:
 	def __init__(self,valeur):
 		self.valeur = valeur
 	def afficher(self,indent=0):
-		afficher(f"<integer value=\"{str(self.valeur)}\" />",indent)
+		afficher(f"<integer value=\"{str(self.valeur)}\"/>",indent)
 
 class Variable:
 	def __init__(self,valeur):
 		self.valeur = valeur
 	def afficher(self,indent=0):
-		afficher(f"<variable value=\"{str(self.valeur)}\" />",indent)
+		afficher(f"<variable value=\"{str(self.valeur)}\"/>",indent)
 
 class Boolean:
 	def __init__(self,valeur):
 		self.valeur = valeur
 	def afficher(self,indent=0):
-		afficher(f"<boolean value=\"{str(self.valeur)}\" />",indent)
+		afficher(f"<boolean value=\"{str(self.valeur)}\"/>",indent)

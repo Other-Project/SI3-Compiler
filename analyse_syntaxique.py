@@ -58,7 +58,15 @@ class FloParser(Parser):
 
     @_('TYPE IDENTIFIANT "=" expr')
     def instruction(self, p):
-        return p.expr
+        return arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT, p.expr)
+
+    @_('TYPE IDENTIFIANT')
+    def instruction(self, p):
+        return arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT)
+
+    @_('IDENTIFIANT "=" expr')
+    def instruction(self, p):
+        return arbre_abstrait.Assignment(p.IDENTIFIANT, p.expr)
 
     @_("somme")
     def boolean(self, p):
@@ -100,9 +108,9 @@ class FloParser(Parser):
     def factor(self, p):
         return arbre_abstrait.Integer(p.INTEGER)
 
-    @_("boolean")
+    @_("b_or")
     def expr(self, p):
-        return p.boolean
+        return p.b_or
 
     @_(
         'somme "<" somme',
@@ -118,19 +126,27 @@ class FloParser(Parser):
     @_("BOOLEAN")
     def boolean(self, p):
         return arbre_abstrait.Boolean(p.BOOLEAN)
-#
-#    @_("expr")
-#    def args(self, p):
- #       return arbre_abstrait.Args(p.expr)
+    
+    @_("b_and OR b_or")
+    def b_or(self, p):
+        return arbre_abstrait.Operation(p[1], p[0], p[2])
+    @_("b_and")
+    def b_or(self, p):
+        return p.b_and
 
-   # @_("args, expr")
-  #  def args(self,p):
-    #    p.args.append(p.expr)
-     #   return arbre_abstrait.Args(p.args)
-
-#    @_('IN "(" expr ")" ')
- #   def function_name(self,p):
-  #      return arbre_abstrait.Function(p.function_name, p.expr)
+    @_("b_not AND b_and")
+    def b_and(self, p):
+        return arbre_abstrait.Operation(p[1], p[0], p[2])
+    @_("b_not")
+    def b_and(self, p):
+        return p.b_not
+    
+    @_("NOT boolean")
+    def b_not(self, p):
+        return arbre_abstrait.Operation(p.NOT, p.boolean)
+    @_("boolean")
+    def b_not(self, p):
+        return p.boolean
 
     def error(self, p):
         print("Erreur de syntaxe", p, file=sys.stderr)
