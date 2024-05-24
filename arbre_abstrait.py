@@ -36,7 +36,7 @@ class Declaration:
 		self.variable = variable
 		self.value = value
 	def afficher(self,indent=0):
-		afficher(f"<declaration name=\"{self.variable}\" type=\"{self.type}\"{("" if self.value else "/")}>", indent)
+		afficher(f"<declaration name=\"{self.variable}\" type=\"{self.type}\"{('' if self.value else '/')}>", indent)
 		if self.value:
 			self.value.afficher(indent+1)
 			afficher("</declaration>",indent)
