@@ -81,6 +81,16 @@ class Operation:
 		if self.exp2:
 			self.exp2.afficher(indent+1)
 		afficher("</operation>",indent)
+
+class While:
+	def __init__(self,cond,instructions):
+		self.cond = cond
+		self.instructions = instructions
+	def afficher(self,indent=0):
+		afficher(f"<while>",indent)
+		self.cond.afficher(indent+1)
+		self.instructions.afficher(indent+1)
+		afficher("</while>",indent)
 		
 class If:
 	def __init__(self,cond,instructions):
@@ -94,6 +104,7 @@ class If:
 		for elseCond in self.elseList:
 			elseCond.afficher(indent+1)
 		afficher("</if>",indent)
+
 class Else:
 	def __init__(self,instructions):
 		self.instructions = instructions

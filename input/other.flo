@@ -12,9 +12,9 @@ sinon {
     a = 10;
     booleen b = a >= 6;
     ecrire(b et Vrai ou Faux);
-#    tanque(b){
+    tantque(b){
         a = a - 1;
         b = a >= 6;
         ecrire(a);
-#    }
+    }
 }

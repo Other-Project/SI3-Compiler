@@ -38,7 +38,11 @@ class FloParser(Parser):
         p.condition_elseif.elseList.append(arbre_abstrait.Else(p.instructions))
         return p.condition_elseif
 
-    @_("condition_else")
+    @_('WHILE "(" expr ")" "{" instructions "}"')
+    def while_loop(self, p):
+        return arbre_abstrait.While(p.expr, p.instructions)
+
+    @_("condition_else", "while_loop")
     def block_operator(self, p):
         return p[0]
 
