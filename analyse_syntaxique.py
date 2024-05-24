@@ -38,7 +38,7 @@ class FloParser(Parser):
         p.condition_elseif.elseList.append(arbre_abstrait.Else(p.instructions))
         return p.condition_elseif
 
-    @_('condition_else')
+    @_("condition_else")
     def block_operator(self, p):
         return p[0]
 
@@ -59,38 +59,37 @@ class FloParser(Parser):
         p.instructions.instructions.insert(0, p.instruction)
         return p.instructions
 
-    @_('block_operator instructions')
+    @_("block_operator instructions")
     def instructions(self, p):
         p.instructions.instructions.insert(0, p.block_operator)
         return p.instructions
 
-    @_('function')
+    @_("function")
     def expr(self, p):
         return p.function
-		  
-    @_('function')
-    def instruction(self,p):
+
+    @_("function")
+    def instruction(self, p):
         return p.function
 
     @_('IDENTIFIANT "(" args ")"')
     def function(self, p):
         return arbre_abstrait.Function(p.IDENTIFIANT, p.args)
 
-    @_('')
-    def args(self,p):
+    @_("")
+    def args(self, p):
         pass
 
-    @_('expr')
-    def args(self,p):
+    @_("expr")
+    def args(self, p):
         a = arbre_abstrait.Args()
         a.listArgs.append(p.expr)
         return a
 
     @_('expr "," args')
-    def args(self,p):
-        p.args.listArgs.insert(0,p.expr)
+    def args(self, p):
+        p.args.listArgs.insert(0, p.expr)
         return p.args
-
 
     @_('TYPE IDENTIFIANT "=" expr')
     def instruction(self, p):
@@ -104,7 +103,7 @@ class FloParser(Parser):
     def instruction(self, p):
         return arbre_abstrait.Assignment(p.IDENTIFIANT, p.expr)
 
-    @_('RETURN expr')
+    @_("RETURN expr")
     def instruction(self, p):
         return arbre_abstrait.Return(p.expr)
 
