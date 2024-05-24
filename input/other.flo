@@ -1,5 +1,5 @@
 entier a;
-a = 2 + 4*2;
+a = lire();
 
 si (a >= 9) {
     booleen b = Faux ou Vrai et (Vrai ou Faux);

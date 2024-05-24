@@ -22,14 +22,22 @@ class Instructions:
 		afficher("</instructions>",indent)
 			
 class Function:
-	def __init__(self,fct,exp):
+	def __init__(self,fct,args):
 		self.fct = fct
+		self.args = args
+	def afficher(self,indent=0):
+		afficher(f"<function name=\"{self.fct}\"{('' if self.args else '/')}>",indent)
+		if self.args:
+			self.args.afficher(indent+1)
+			afficher("</function>",indent)
+
+class Return:
+	def __init__(self,exp):
 		self.exp = exp
 	def afficher(self,indent=0):
-		afficher(f"<function name=\"{self.fct}\">",indent)
+		afficher(f"<return>",indent)
 		self.exp.afficher(indent+1)
-		afficher("</function>",indent)
-
+		afficher("</return>",indent)
 
 class Args:
 	def __init__(self):

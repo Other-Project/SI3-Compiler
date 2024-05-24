@@ -38,16 +38,20 @@ class FloParser(Parser):
         p.condition_elseif.elseList.append(arbre_abstrait.Else(p.instructions))
         return p.condition_elseif
 
+    @_('condition_else')
+    def block_operator(self, p):
+        return p[0]
+
     @_('instruction ";"')
     def instructions(self, p):
         l = arbre_abstrait.Instructions()
         l.instructions.insert(0, p.instruction)
         return l
 
-    @_("condition_else")
+    @_("block_operator")
     def instructions(self, p):
         l = arbre_abstrait.Instructions()
-        l.instructions.insert(0, p.condition_else)
+        l.instructions.insert(0, p.block_operator)
         return l
 
     @_('instruction ";" instructions')
@@ -55,10 +59,14 @@ class FloParser(Parser):
         p.instructions.instructions.insert(0, p.instruction)
         return p.instructions
 
-    @_('condition_else ";" instructions')
+    @_('block_operator instructions')
     def instructions(self, p):
-        p.instructions.instructions.insert(0, p.instruction)
+        p.instructions.instructions.insert(0, p.block_operator)
         return p.instructions
+
+    @_('function')
+    def expr(self, p):
+        return p.function
 		  
     @_('function')
     def instruction(self,p):
@@ -67,6 +75,10 @@ class FloParser(Parser):
     @_('IDENTIFIANT "(" args ")"')
     def function(self, p):
         return arbre_abstrait.Function(p.IDENTIFIANT, p.args)
+
+    @_('')
+    def args(self,p):
+        pass
 
     @_('expr')
     def args(self,p):
@@ -79,15 +91,6 @@ class FloParser(Parser):
         p.args.listArgs.insert(0,p.expr)
         return p.args
 
-    @_('function')
-    def args(self, p):
-        return p.function
-
-# mafonction(mafonction(5,3),2)
-    @_('function "," args')
-    def args(self,p):
-        p.args.listArgs.insert(0,p.function)
-        return p.args
 
     @_('TYPE IDENTIFIANT "=" expr')
     def instruction(self, p):
@@ -100,6 +103,10 @@ class FloParser(Parser):
     @_('IDENTIFIANT "=" expr')
     def instruction(self, p):
         return arbre_abstrait.Assignment(p.IDENTIFIANT, p.expr)
+
+    @_('RETURN expr')
+    def instruction(self, p):
+        return arbre_abstrait.Return(p.expr)
 
     @_("somme")
     def boolean(self, p):
