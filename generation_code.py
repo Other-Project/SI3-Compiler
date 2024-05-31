@@ -126,7 +126,7 @@ Affiche le code arm correspondant à une instruction
 
 def gen_instruction(instruction):
     if type(instruction) == arbre_abstrait.Function:
-        gen_lire()
+        gen_ecrire(instruction)
     else:
         erreur("génération type instruction non implémenté " + str(type(instruction)))
 
@@ -158,6 +158,7 @@ def gen_lire():
     arm_instruction("sub", "sp", "sp", "#4", "Réserve de l’espace sur la pile pour stocker l’entier lu (on fait sp = sp -4)")
     arm_instruction("movs", "{r1}" , "sp", "", "Copie l’adresse de cet espace dans r1")
     arm_instruction("bl", "scanf", "", "", "Lance scanf pour lire l’entier et le stocker à l’adresse spécifiée par r1")
+
 
 """
 Affiche le code arm pour calculer et empiler la valeur d'une expression
