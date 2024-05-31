@@ -137,7 +137,9 @@ Affiche le code arm correspondant au fait d'envoyer la valeur entière d'une exp
 
 
 def gen_ecrire(ecrire):
-    gen_expression(ecrire.args.listArgs[0])  # on calcule et empile la valeur d'expression
+    gen_expression(
+        ecrire.args.listArgs[0]
+    )  # on calcule et empile la valeur d'expression
     arm_instruction(
         "pop", "{r1}", "", "", ""
     )  # on dépile la valeur d'expression sur r1
@@ -180,7 +182,6 @@ def gen_operation(operation):
 
     code = {
         "+": "add",
-        "-": "sub",
         "*": "mul",
     }  # Un dictionnaire qui associe à chaque opérateur sa fonction arm
     # Voir: https://developer.arm.com/documentation/dui0497/a/the-cortex-m0-instruction-set/instruction-set-summary?lang=en
@@ -189,14 +190,22 @@ def gen_operation(operation):
         arm_instruction(
             code[op],
             "r0",
+            "r1",
+            "r0",
+            "effectue l'opération r0" + op + "r1 et met le résultat dans r0",
+        )
+    elif op == "-":
+        arm_instruction(
+            "sub",
+            "r0",
             "r0",
             "r1",
             "effectue l'opération r0" + op + "r1 et met le résultat dans r0",
         )
     elif op == "/":
-        arm_instruction("bl __aeabi_idiv")
+        arm_instruction("bl", "__aeabi_idiv")
     elif op == "%":
-        arm_instruction("bl __aeabi_idivmod")
+        arm_instruction("bl", "__aeabi_idivmod")
         arm_instruction("mov", "r0", "r1")
     else:
         erreur('operateur "' + op + '" non implémenté')
