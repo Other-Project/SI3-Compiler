@@ -186,8 +186,8 @@ def gen_operation(operation):
         arm_instruction(
             code[op],
             "r0",
-            "r1",
             "r0",
+            "r1",
             "effectue l'opération r0" + op + "r1 et met le résultat dans r0",
         )
     else:
