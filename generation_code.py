@@ -162,6 +162,11 @@ def gen_expression(expression):
         # on met sur la pile la valeur entière
         arm_instruction("push", "{r1}", "", "", "")
         # on met sur la pile la valeur entière
+    elif type(expression) == arbre_abstrait.Boolean:
+        arm_instruction("mov", "r1", "#" + str(1 if expression.valeur else 0), "", "")
+        # on met sur la pile la valeur entière
+        arm_instruction("push", "{r1}", "", "", "")
+        # on met sur la pile la valeur entière
     else:
         erreur("type d'expression inconnu" + str(type(expression)))
 

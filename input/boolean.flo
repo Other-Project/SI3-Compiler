@@ -1,3 +1,6 @@
+ecrire(Vrai);
+ecrire(Faux);
+
 booleen bool = Vrai;
 entier value = 2;
 ecrire(value == 2);
