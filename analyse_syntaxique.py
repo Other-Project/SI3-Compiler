@@ -137,7 +137,7 @@ class FloParser(Parser):
     def instruction(self, p):
         return arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT, p.expr)
 
-    @_('TYPE IDENTIFIANT ";"')
+    @_('TYPE IDENTIFIANT')
     def instruction(self, p):
         return arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT)
 
