@@ -123,7 +123,7 @@ Affiche le code arm correspondant à une instruction
 
 def gen_instruction(instruction):
     if type(instruction) == arbre_abstrait.Function:
-        gen_ecrire(instruction)
+        gen_lire()
     else:
         erreur("génération type instruction non implémenté " + str(type(instruction)))
 
@@ -143,6 +143,16 @@ def gen_ecrire(ecrire):
         "bl", "printf", "", "", ""
     )  # on envoie la valeur de r1 sur la sortie standard
 
+
+"""
+Affiche le code arm correspondant au fait de mettre en pause le programme, et permet à l’utilisateur d’entrée au clavier une chaîne 
+de caractère qui est interprétée comme un entier.
+"""
+def gen_lire():
+    arm_instruction("ldr", "{r0}", "=.LC0", "", "Charge l’adresse de la chaîne de format pour scanf dans r0")
+    arm_instruction("sub", "sp", "sp", "#4", "Réserve de l’espace sur la pile pour stocker l’entier lu (on fait sp = sp -4)")
+    arm_instruction("movs", "{r1}" , "sp", "", "Copie l’adresse de cet espace dans r1")
+    arm_instruction("bl", "scanf", "", "", "Lance scanf pour lire l’entier et le stocker à l’adresse spécifiée par r1")
 
 """
 Affiche le code arm pour calculer et empiler la valeur d'une expression
