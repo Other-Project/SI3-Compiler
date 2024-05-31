@@ -25,7 +25,6 @@ $(OUTPUT_DIR)/%.xml: input/%.flo
 	@echo "Analyse syntaxique: $*"
 	@-python3 analyse_syntaxique.py $< > $(OUTPUT_DIR)/$*.xml
 
-	
 $(OUTPUT_DIR)/%.txt: input/%.flo
 	@echo "Analyse lexicale: $*"
 	@-python3 analyse_lexicale.py $< > $(OUTPUT_DIR)/$*.txt
