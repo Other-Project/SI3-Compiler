@@ -5,11 +5,11 @@ S := $(addsuffix .S,$(EXE))
 XML := $(addsuffix .xml,$(EXE))
 TXT := $(addsuffix .txt,$(EXE))
 
-all: $(TXT)  $(XML) $(S) $(EXE)
 build: $(EXE)
 asm: $(S)
 syntatic: $(XML)
 lexical: $(TXT)
+all: $(TXT)  $(XML) $(S) $(EXE)
 clean:
 	@rm $(OUTPUT_DIR)/*
 
