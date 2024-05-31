@@ -15,7 +15,7 @@ clean:
 
 $(OUTPUT_DIR)/%: $(OUTPUT_DIR)/%.S
 	@echo "Compilation: $*"
-	@-arm-linux-gnueabi-gcc $@.s -static -o $@;
+	@-arm-linux-gnueabi-gcc $@.S -static -o $@;
 
 $(OUTPUT_DIR)/%.S: input/%.flo
 	@echo "Generation de l'ASM: $*"

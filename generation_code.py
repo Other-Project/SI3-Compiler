@@ -134,7 +134,7 @@ Affiche le code arm correspondant au fait d'envoyer la valeur entière d'une exp
 
 
 def gen_ecrire(ecrire):
-    gen_expression(ecrire.args)  # on calcule et empile la valeur d'expression
+    gen_expression(ecrire.args.listArgs[0])  # on calcule et empile la valeur d'expression
     arm_instruction(
         "pop", "{r1}", "", "", ""
     )  # on dépile la valeur d'expression sur r1
@@ -177,10 +177,12 @@ def gen_operation(operation):
 
     code = {
         "+": "add",
+        "-": "sub",
         "*": "mul",
     }  # Un dictionnaire qui associe à chaque opérateur sa fonction arm
     # Voir: https://developer.arm.com/documentation/dui0497/a/the-cortex-m0-instruction-set/instruction-set-summary?lang=en
-    if op in ["+", "*"]:
+
+    if op in code.keys():
         arm_instruction(
             code[op],
             "r0",
