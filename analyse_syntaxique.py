@@ -16,6 +16,10 @@ class FloParser(Parser):
     def prog(self, p):
         return arbre_abstrait.Program(p.instructions)
 
+    @_('functions instructions')
+    def prog(self, p):
+        return arbre_abstrait.Program(p.instructions, p.functions)
+
     @_('IF "(" expr ")" "{" instructions "}"')
     def condition(self, p):
         return arbre_abstrait.If(p.expr, p.instructions)
@@ -76,9 +80,26 @@ class FloParser(Parser):
     def instruction(self, p):
         return p.function
 
+    @_('declarationFunction')
+    def functions(self, p):
+        l = arbre_abstrait.Functions()
+        l.functions.insert(0,p.declarationFunction)
+        return l
+
+    @_('functions declarationFunction')
+    def functions(self, p):
+        print(p.functions)
+        p.functions.append(p.declarationFunction)
+        return p.functions
+
+
     @_('IDENTIFIANT "(" args ")"')
     def function(self, p):
         return arbre_abstrait.Function(p.IDENTIFIANT, p.args)
+
+    @_('TYPE IDENTIFIANT "(" declarationArgs ")" "{" instructions "}"')
+    def declarationFunction(self, p):
+        return arbre_abstrait.DeclarationFunction(p.TYPE, p.IDENTIFIANT, p.instructions, p.declarationArgs)
 
     @_("")
     def args(self, p):
@@ -95,11 +116,28 @@ class FloParser(Parser):
         p.args.listArgs.insert(0, p.expr)
         return p.args
 
+    @_('TYPE IDENTIFIANT "," declarationArgs')
+    def declarationArgs(self, p):
+        declaration = arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT)
+        p.declarationArgs.declarations.insert(0,declaration)
+        return p.declarationArgs
+
+    @_('TYPE IDENTIFIANT')
+    def declarationArgs(self, p):
+        a = arbre_abstrait.ArgsDeclaration()
+        declaration = arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT)
+        a.declarations.append(declaration)
+        return a
+
+    @_('')
+    def declarationArgs(self, p):
+        pass
+
     @_('TYPE IDENTIFIANT "=" expr')
     def instruction(self, p):
         return arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT, p.expr)
 
-    @_("TYPE IDENTIFIANT")
+    @_('TYPE IDENTIFIANT ";"')
     def instruction(self, p):
         return arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT)
 
