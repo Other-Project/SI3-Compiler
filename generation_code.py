@@ -88,7 +88,10 @@ Affiche le code arm correspondant à tout un programme
 
 
 def gen_programme(programme):
-    header = """.LC0:
+    header = """
+.global __aeabi_idiv
+.global __aeabi_idivmod
+.LC0:
 	.ascii	"%d\\000"
 	.align	2
 .LC1:
@@ -190,6 +193,11 @@ def gen_operation(operation):
             "r1",
             "effectue l'opération r0" + op + "r1 et met le résultat dans r0",
         )
+    elif op == "/":
+        arm_instruction("bl __aeabi_idiv")
+    elif op == "%":
+        arm_instruction("bl __aeabi_idivmod")
+        arm_instruction("mov", "r0", "r1")
     else:
         erreur('operateur "' + op + '" non implémenté')
     arm_instruction("push", "{r0}", "", "", "empile le résultat")
