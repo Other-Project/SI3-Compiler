@@ -91,6 +91,12 @@ def gen_programme(programme):
     header = """
 .global __aeabi_idiv
 .global __aeabi_idivmod
+.boolean_or:
+    mov r0, #1
+	bx lr
+.boolean_not:
+    mov r0, #0
+	bx lr
 .LC0:
 	.ascii	"%d\\000"
 	.align	2
@@ -180,14 +186,17 @@ def gen_operation(operation):
     op = operation.op
 
     gen_expression(operation.exp1)  # on calcule et empile la valeur de exp1
-    gen_expression(operation.exp2)  # on calcule et empile la valeur de exp2
 
-    arm_instruction("pop", "{r1}", "", "", "dépile exp2 dans r1")
+    if operation.exp2:
+        gen_expression(operation.exp2)  # on calcule et empile la valeur de exp2
+        arm_instruction("pop", "{r1}", "", "", "dépile exp2 dans r1")
+
     arm_instruction("pop", "{r0}", "", "", "dépile exp1 dans r0")
 
     code = {
         "+": "add",
         "*": "mul",
+        "et": "mul",
     }  # Un dictionnaire qui associe à chaque opérateur sa fonction arm
     # Voir: https://developer.arm.com/documentation/dui0497/a/the-cortex-m0-instruction-set/instruction-set-summary?lang=en
 
@@ -212,6 +221,14 @@ def gen_operation(operation):
     elif op == "%":
         arm_instruction("bl", "__aeabi_idivmod")
         arm_instruction("mov", "r0", "r1")
+    elif op == "ou":
+        arm_instruction("add", "r0", "r1", "r0")
+        arm_instruction("cmp", "r0", "#2")
+        arm_instruction("blEQ", ".boolean_or")
+    elif op == "non":
+        arm_instruction("add", "r0", "#1")
+        arm_instruction("cmp", "r0", "#2")
+        arm_instruction("blEQ", ".boolean_not")
     else:
         erreur('operateur "' + op + '" non implémenté')
     arm_instruction("push", "{r0}", "", "", "empile le résultat")
