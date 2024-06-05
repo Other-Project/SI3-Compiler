@@ -181,11 +181,10 @@ def gen_expression(expression):
         # on met sur la pile la valeur entière
     elif type(expression) == arbre_abstrait.Boolean:
         arm_instruction("mov", "r1", "#" + str(1 if expression.valeur else 0), "", "")
-        # on met sur la pile la valeur entière
         arm_instruction("push", "{r1}", "", "", "")
-        # on met sur la pile la valeur entière
     else:
         erreur("type d'expression inconnu" + str(type(expression)))
+    return type(expression)
 
 
 """
@@ -196,18 +195,30 @@ Affiche le code arm pour calculer l'opération et la mettre en haut de la pile
 def gen_operation(operation):
     op = operation.op
 
-    gen_expression(operation.exp1)  # on calcule et empile la valeur de exp1
+    type1 = gen_expression(operation.exp1)  # on calcule et empile la valeur de exp1
 
     if operation.exp2:
-        gen_expression(operation.exp2)  # on calcule et empile la valeur de exp2
+        type2 = gen_expression(operation.exp2)  # on calcule et empile la valeur de exp2
+        if type1 != type2:
+            erreur(f"Types incompatibles {type1} != {type2}")
         arm_instruction("pop", "{r1}", "", "", "dépile exp2 dans r1")
 
     arm_instruction("pop", "{r0}", "", "", "dépile exp1 dans r0")
 
+    if type1 == arbre_abstrait.Integer and gen_operation_integer(op):
+        True # do nothing
+    elif type1 == arbre_abstrait.Boolean and gen_operation_boolean(op):
+        True # do nothing
+    elif op in ["==", "!=", "<=", ">=", ">", "<"]:
+        True # don't do nothing, we have, something to do, but it's not done yet, because it's still to be done
+    else:
+        erreur(f'operateur "{op}" non implémenté pour le type {type1}')
+    arm_instruction("push", "{r0}", "", "", "empile le résultat")
+
+def gen_operation_integer(op):
     code = {
         "+": "add",
-        "*": "mul",
-        "et": "mul",
+        "*": "mul"
     }  # Un dictionnaire qui associe à chaque opérateur sa fonction arm
     # Voir: https://developer.arm.com/documentation/dui0497/a/the-cortex-m0-instruction-set/instruction-set-summary?lang=en
 
@@ -232,6 +243,19 @@ def gen_operation(operation):
     elif op == "%":
         arm_instruction("bl", "__aeabi_idivmod")
         arm_instruction("mov", "r0", "r1")
+    else:
+        return False
+    return True
+
+def gen_operation_boolean(op):
+    if op == "et":
+        arm_instruction(
+            "mul",
+            "r0",
+            "r1",
+            "r0",
+            "effectue l'opération r0" + op + "r1 et met le résultat dans r0",
+        )
     elif op == "ou":
         arm_instruction("add", "r0", "r1", "r0")
         arm_instruction("cmp", "r0", "#2")
@@ -240,10 +264,6 @@ def gen_operation(operation):
         arm_instruction("add", "r0", "#1")
         arm_instruction("cmp", "r0", "#2")
         arm_instruction("blEQ", ".boolean_not")
-    else:
-        erreur('operateur "' + op + '" non implémenté')
-    arm_instruction("push", "{r0}", "", "", "empile le résultat")
-
 
 if __name__ == "__main__":
     afficher_arm = True
