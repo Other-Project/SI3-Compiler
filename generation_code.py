@@ -3,9 +3,7 @@ from analyse_lexicale import FloLexer
 from analyse_syntaxique import FloParser
 import arbre_abstrait
 
-num_etiquette_courante = (
-    -1
-)  # Permet de donner des noms différents à toutes les étiquettes (en les appelant e0, e1,e2,...)
+num_etiquette_courante = -1  # Permet de donner des noms différents à toutes les étiquettes (en les appelant e0, e1,e2,...)
 
 afficher_table = False
 afficher_code = False
@@ -78,8 +76,9 @@ Retourne le nom d'une nouvelle étiquette
 
 
 def arm_nouvelle_etiquette():
+    global num_etiquette_courante
     num_etiquette_courante += 1
-    return "e" + str(num_etiquette_courante)
+    return ".e" + str(num_etiquette_courante)
 
 
 """
@@ -205,12 +204,29 @@ def gen_operation(operation):
 
     arm_instruction("pop", "{r0}", "", "", "dépile exp1 dans r0")
 
+    comparisons = {
+        "==": "EQ",
+        "!=": "NE",
+        "<=": "LE",
+        ">=": "GE",
+        "<": "LT",
+        ">": "GT"
+    }
     if type1 == arbre_abstrait.Integer and gen_operation_integer(op):
         True # do nothing
     elif type1 == arbre_abstrait.Boolean and gen_operation_boolean(op):
         True # do nothing
-    elif op in ["==", "!=", "<=", ">=", ">", "<"]:
-        True # don't do nothing, we have, something to do, but it's not done yet, because it's still to be done
+    elif op in comparisons.keys():
+        labelTrue = arm_nouvelle_etiquette()
+        labelFalse = arm_nouvelle_etiquette()
+
+        arm_instruction("cmp", "r0", "r1")
+        arm_instruction(f"b{comparisons[op]}", labelTrue)
+        arm_instruction("mov", "r0", "#0")
+        arm_instruction("b", labelFalse)
+        arm_instruction(f"{labelTrue}:")
+        arm_instruction("mov", "r0", "#1")
+        arm_instruction(f"{labelFalse}:")
     else:
         erreur(f'operateur "{op}" non implémenté pour le type {type1}')
     arm_instruction("push", "{r0}", "", "", "empile le résultat")
@@ -264,6 +280,9 @@ def gen_operation_boolean(op):
         arm_instruction("add", "r0", "#1")
         arm_instruction("cmp", "r0", "#2")
         arm_instruction("blEQ", ".boolean_not")
+    else:
+        return False
+    return True
 
 if __name__ == "__main__":
     afficher_arm = True

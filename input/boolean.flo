@@ -9,6 +9,15 @@ ecrire(Vrai ou Vrai);
 ecrire(non Vrai);
 ecrire(non Faux);
 
+ecrire(3 == 2);
+ecrire(3 >= 2);
+ecrire(3 <= 2);
+ecrire(3 != 2);
+ecrire(3 > 2);
+ecrire(3 < 2);
+
+ecrire(2 * 3 == 6);
+
 # booleen bool = Vrai;
 # entier value = 2;
 # ecrire(value == 2);
