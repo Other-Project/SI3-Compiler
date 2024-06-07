@@ -166,9 +166,7 @@ def gen_lire():
     arm_instruction("sub", "sp", "sp", "#4", "Réserve de l’espace sur la pile pour stocker l’entier lu (on fait sp = sp -4)")
     arm_instruction("movs", "r1" , "sp", "", "Copie l’adresse de cet espace dans r1")
     arm_instruction("bl", "scanf", "", "", "Lance scanf pour lire l’entier et le stocker à l’adresse spécifiée par r1")
-    arm_instruction("ldr", "r1", "[sp]", "", "Charge l’entier lu de la pile vers r1")
-    arm_instruction("add", "sp", "sp", "#4", "Nettoie la pile (sp = sp + 4)")
-    arm_instruction("push", "{r1}", "", "", "Empile la valeur lue sur la pile")
+    arm_instruction("pop", "{r2}", "", "", "empiler input dans r2")
 
 """
 Affiche le code arm pour calculer et empiler la valeur d'une expression
@@ -178,6 +176,7 @@ Affiche le code arm pour calculer et empiler la valeur d'une expression
 def gen_expression(expression):
     if type(expression) == arbre_abstrait.Function:
         gen_instruction(expression)
+        arm_instruction("push", "{r2}", "", "", "")
     elif type(expression) == arbre_abstrait.Operation:
         gen_operation(expression)  # on calcule et empile la valeur de l'opération
     elif type(expression) == arbre_abstrait.Integer:
