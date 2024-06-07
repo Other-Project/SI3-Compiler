@@ -193,9 +193,9 @@ Affiche le code arm correspondant au fait de mettre en pause le programme, et pe
 de caractère qui est interprétée comme un entier.
 """
 def gen_lire():
-    arm_instruction("ldr", "{r0}", "=.LC0", "", "Charge l’adresse de la chaîne de format pour scanf dans r0")
+    arm_instruction("ldr", "r0", "=.LC0", "", "Charge l’adresse de la chaîne de format pour scanf dans r0")
     arm_instruction("sub", "sp", "sp", "#4", "Réserve de l’espace sur la pile pour stocker l’entier lu (on fait sp = sp -4)")
-    arm_instruction("movs", "{r1}" , "sp", "", "Copie l’adresse de cet espace dans r1")
+    arm_instruction("movs", "r1" , "sp", "", "Copie l’adresse de cet espace dans r1")
     arm_instruction("bl", "scanf", "", "", "Lance scanf pour lire l’entier et le stocker à l’adresse spécifiée par r1")
     arm_instruction("pop", "{r2}", "", "", "empiler input dans r2")
 
@@ -236,7 +236,7 @@ def gen_expression(expression):
         arm_instruction("mov", "r1", "#" + str(1 if expression.valeur else 0), "", "")
         arm_instruction("push", "{r1}", "", "", "")
     else:
-        erreur("type d'expression inconnu" + typeStr(type(expression)))
+        erreur("type d'expression inconnu " + typeStr(type(expression)))
     return type(expression)
 
 
