@@ -19,6 +19,9 @@ def erreur(s):
     print("Erreur:", s, file=sys.stderr)
     exit(1)
 
+def typeStr(type):
+    return "|".join(type) if isinstance(type, list) else type
+
 class TableSymboles:
     def __init__(self):
         self._builtins = {
@@ -67,15 +70,14 @@ class TableSymboles:
         for type, arg in zip(argsTypes, args):
             argTypes = type if isinstance(type, list) else [type]
             if arg not in [types[t] for t in argTypes]:
-                expected = " or ".join(argTypes)
-                self.erreur(f"Incorrect argument type, expected {expected} got {arg}")
+                self.erreur(f"Incorrect argument type, expected {typeStr(type)} got {arg}")
 
     def has(self, name):
         return name in self._symbols
 
     def _getRow(self, name, value):
         args = value["args"]
-        return [name, value["type"], f"{len(args)}*4={len(args)*4}", args]
+        return [name, value["type"], f"{len(args)}*4={len(args)*4}", ", ".join([typeStr(arg) for arg in args])]
 
     def __str__(self) -> str:
         table = PrettyTable()
