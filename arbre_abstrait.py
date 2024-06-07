@@ -95,10 +95,10 @@ class ArgsDeclaration:
     def __init__(self):
         self.declarations = []
     def afficher(self, indent=0):
-        afficher(f"<arguments declaration>", indent)
+        afficher(f"<args_declaration>", indent)
         for i in range(len(self.declarations)):
             self.declarations[i].afficher(indent + 1)
-        afficher("</arguments declaration>", indent)
+        afficher("</args_declaration>", indent)
     def append(self, expr):
         self.declarations.append(expr)
 
