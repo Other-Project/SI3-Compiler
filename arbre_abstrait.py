@@ -66,31 +66,28 @@ class Args:
         self.listArgs.append(expr)
 
 class Declaration:
-    def __init__(self,type,variable,value=None):
+    def __init__(self,type,name,value=None):
         self.type = type
-        self.variable = variable
+        self.name = name
         self.value = value
     def afficher(self,indent=0):
-        afficher(f"<declaration name=\"{self.variable}\" type=\"{self.type}\"{('' if self.value else '/')}>", indent)
+        afficher(f"<declaration name=\"{self.name}\" type=\"{self.type}\"{('' if self.value else '/')}>", indent)
         if self.value:
             self.value.afficher(indent+1)
             afficher("</declaration>",indent)
 
 class DeclarationFunction:
-    def __init__(self, type, functionName, instructions, declarationArgs=None):
+    def __init__(self, type, name, instructions, declarationArgs=None):
         self.type = type
-        self.functionName = functionName
+        self.name = name
         self.instructions = instructions
         self.declarationArgs = declarationArgs
     def afficher(self, indent=0):
-        afficher(f"<declaration name=\"{self.functionName}\" type=\"{self.type}\">", indent)
+        afficher(f"<func_declaration name=\"{self.name}\" type=\"{self.type}\">", indent)
         if self.declarationArgs:
             self.declarationArgs.afficher(indent + 1)
-            self.instructions.afficher(indent + 1)
-            afficher("</declaration>", indent)
-        else :
-            self.instructions.afficher(indent + 1)
-            afficher("</declaration>", indent)
+        self.instructions.afficher(indent + 1)
+        afficher("</func_declaration>", indent)
     def append(self, expr):
         self.declarationArgs.append(expr)
 

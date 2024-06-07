@@ -2,16 +2,18 @@ import sys
 from analyse_lexicale import FloLexer
 from analyse_syntaxique import FloParser
 import arbre_abstrait
+from table_des_symboles import TableSymboles
 
 num_etiquette_courante = -1  # Permet de donner des noms différents à toutes les étiquettes (en les appelant e0, e1,e2,...)
 
 afficher_table = False
 afficher_code = False
 
+tableSymboles = TableSymboles()
+
 """
 affiche une erreur sur la sortie stderr et quitte le programme
 """
-
 
 def erreur(s):
     print("Erreur:", s, file=sys.stderr)
@@ -109,6 +111,9 @@ def gen_programme(programme):
     printifm("main:")
     arm_instruction("push", "{fp,lr}", "", "", "")
     arm_instruction("add", "fp", "sp", "#4", "")
+    for instruction in programme.listeInstructions.instructions:
+        tableSymboles.add(instruction)
+    print(tableSymboles, file=sys.stderr)
     gen_listeInstructions(programme.listeInstructions)
     arm_instruction("mov", "r0", "#0", "", "")
     arm_instruction("pop", "{fp, pc}", "", "", "")
@@ -160,9 +165,9 @@ Affiche le code arm correspondant au fait de mettre en pause le programme, et pe
 de caractère qui est interprétée comme un entier.
 """
 def gen_lire():
-    arm_instruction("ldr", "r0", "=.LC0", "", "Charge l’adresse de la chaîne de format pour scanf dans r0")
+    arm_instruction("ldr", "{r0}", "=.LC0", "", "Charge l’adresse de la chaîne de format pour scanf dans r0")
     arm_instruction("sub", "sp", "sp", "#4", "Réserve de l’espace sur la pile pour stocker l’entier lu (on fait sp = sp -4)")
-    arm_instruction("movs", "r1" , "sp", "", "Copie l’adresse de cet espace dans r1")
+    arm_instruction("movs", "{r1}" , "sp", "", "Copie l’adresse de cet espace dans r1")
     arm_instruction("bl", "scanf", "", "", "Lance scanf pour lire l’entier et le stocker à l’adresse spécifiée par r1")
     arm_instruction("pop", "{r2}", "", "", "empiler input dans r2")
 
