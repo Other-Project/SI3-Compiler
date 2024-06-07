@@ -23,11 +23,16 @@ class TableSymboles:
         if type(declaration) not in [arbre_abstrait.DeclarationFunction, arbre_abstrait.Declaration]:
             return
         if declaration.type not in types.keys():
-            erreur(f"Type invalide {declaration.type}")
+            erreur(f"invalid type {declaration.type}")
+        if self.has(declaration.name):
+            erreur(f"Name already used {declaration.name}")
         self.typeIdentifier[declaration.name] = declaration.type
 
     def get(self, name):
         return types[self.typeIdentifier[name]]
+
+    def has(self, name):
+        return name in self.typeIdentifier
 
     def __str__(self) -> str:
         table = PrettyTable()

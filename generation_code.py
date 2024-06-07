@@ -42,6 +42,9 @@ def printift(*args, **kwargs):
         print(*args, **kwargs)
 
 
+def typeStr(type):
+    return type.__name__
+
 """
 Fonction locale, permet d'afficher un commentaire dans le code arm.
 """
@@ -108,43 +111,64 @@ def gen_programme(programme):
 	.global	main"""
     printifm(header)
 
+    if programme.listeFunctions:
+        for function in programme.listeFunctions.functions:
+            tableSymboles.add(function)
+        printift(tableSymboles)
+
+        arm_comment("functions")
+        for function in programme.listeFunctions.functions:
+            gen_def_fonction(function)
+
     printifm("main:")
     arm_instruction("push", "{fp,lr}", "", "", "")
     arm_instruction("add", "fp", "sp", "#4", "")
-    for function in programme.listeFunctions.functions:
-        tableSymboles.add(function)
-    printift(tableSymboles)
+
     gen_listeInstructions(programme.listeInstructions)
+
     arm_instruction("mov", "r0", "#0", "", "")
     arm_instruction("pop", "{fp, pc}", "", "", "")
 
+def gen_def_fonction(f):
+    printifm(f"_{f.name}:")
+    arm_instruction("push", "{lr}")
+    gen_listeInstructions(f.instructions, f.name)
 
 """
 Affiche le code arm correspondant à une suite d'instructions
 """
 
 
-def gen_listeInstructions(listeInstructions):
+def gen_listeInstructions(listeInstructions, function=None):
     for instruction in listeInstructions.instructions:
-        gen_instruction(instruction)
+        gen_instruction(instruction, function)
 
 
 """
 Affiche le code arm correspondant à une instruction
 """
-def gen_instruction(instruction):
+def gen_instruction(instruction, function=None):
     if type(instruction) == arbre_abstrait.Function:
         if instruction.fct == "lire":
             gen_lire()
             return arbre_abstrait.Integer
         elif instruction.fct == "ecrire":
             gen_ecrire(instruction)
-        else:
+        elif tableSymboles.has(instruction.fct):
+            arm_instruction("bl", f"_{instruction.fct}")
             return tableSymboles.get(instruction.fct)
     elif type(instruction) in [arbre_abstrait.While, arbre_abstrait.If]:
         gen_block_operation(instruction)
+    elif type(instruction) == arbre_abstrait.Return:
+        if not function:
+            erreur("Return keyword is only valid inside a function")
+        returnType = gen_expression(instruction.exp)
+        if returnType != tableSymboles.get(function):
+            erreur(f"Incorrect return type expected {typeStr(tableSymboles.get(function))} got {typeStr(returnType)}")
+        arm_instruction("pop", "{r2}")
+        arm_instruction("pop", "{pc}", comment="return")
     else:
-        erreur("génération type instruction non implémenté " + str(type(instruction)))
+        erreur("génération type instruction non implémenté " + typeStr(type(instruction)))
     return None
 
 
@@ -212,7 +236,7 @@ def gen_expression(expression):
         arm_instruction("mov", "r1", "#" + str(1 if expression.valeur else 0), "", "")
         arm_instruction("push", "{r1}", "", "", "")
     else:
-        erreur("type d'expression inconnu" + str(type(expression)))
+        erreur("type d'expression inconnu" + typeStr(type(expression)))
     return type(expression)
 
 
@@ -229,7 +253,7 @@ def gen_operation(operation):
     if operation.exp2:
         type2 = gen_expression(operation.exp2)  # on calcule et empile la valeur de exp2
         if type1 != type2:
-            erreur(f"Types incompatibles {type1} != {type2}")
+            erreur(f"Types incompatibles {typeStr(type1)} != {typeStr(type2)}")
         arm_instruction("pop", "{r1}", "", "", "dépile exp2 dans r1")
 
     arm_instruction("pop", "{r0}", "", "", "dépile exp1 dans r0")
@@ -258,7 +282,7 @@ def gen_operation(operation):
         arm_instruction("mov", "r0", "#1")
         arm_instruction(f"{labelFalse}:")
     else:
-        erreur(f'operateur "{op}" non implémenté pour le type {type1}')
+        erreur(f'operateur "{op}" non implémenté pour le type {typeStr(type1)}')
     arm_instruction("push", "{r0}", "", "", "empile le résultat")
     return type1
 
