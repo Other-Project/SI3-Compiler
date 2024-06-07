@@ -172,7 +172,7 @@ Affiche le code arm pour calculer et empiler la valeur d'une expression
 
 def gen_expression(expression):
     if type(expression) == arbre_abstrait.Operation:
-        gen_operation(expression)  # on calcule et empile la valeur de l'opération
+        return gen_operation(expression)  # on calcule et empile la valeur de l'opération
     elif type(expression) == arbre_abstrait.Integer:
         arm_instruction("mov", "r1", "#" + str(expression.valeur), "", "")
         # on met sur la pile la valeur entière
@@ -230,6 +230,7 @@ def gen_operation(operation):
     else:
         erreur(f'operateur "{op}" non implémenté pour le type {type1}')
     arm_instruction("push", "{r0}", "", "", "empile le résultat")
+    return type1
 
 def gen_operation_integer(op):
     code = {

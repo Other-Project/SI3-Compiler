@@ -200,12 +200,18 @@ class FloParser(Parser):
         "somme LE somme",
         "somme GE somme",
         "somme NE somme",
+        "boolean_value EQ boolean_value",
+        "boolean_value NE boolean_value",
     )
     def boolean(self, p):
         return arbre_abstrait.Operation(p[1], p[0], p[2])
-
-    @_("BOOLEAN")
+    
+    @_("boolean_value")
     def boolean(self, p):
+        return p.boolean_value
+    
+    @_("BOOLEAN")
+    def boolean_value(self, p):
         return arbre_abstrait.Boolean(p.BOOLEAN)
 
     @_("b_and OR b_or")
