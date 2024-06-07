@@ -1,0 +1,17 @@
+si (2 > 3){
+    ecrire(3);
+}
+sinon si (2 != 2){
+    ecrire(2);
+}
+sinon si (2 == 2){
+    ecrire(1);
+}
+sinon {
+    ecrire(0);
+}
+
+tantque(4 != 4){
+    ecrire(4);
+}
+ecrire(5);
