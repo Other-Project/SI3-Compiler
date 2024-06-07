@@ -156,15 +156,16 @@ def gen_instruction(instruction, function=None):
             gen_ecrire(instruction)
         elif tableSymboles.has(instruction.fct):
             arm_instruction("bl", f"_{instruction.fct}")
-            return tableSymboles.get(instruction.fct)
+            return tableSymboles.returnType(instruction.fct)
     elif type(instruction) in [arbre_abstrait.While, arbre_abstrait.If]:
         gen_block_operation(instruction)
     elif type(instruction) == arbre_abstrait.Return:
         if not function:
             erreur("Return keyword is only valid inside a function")
         returnType = gen_expression(instruction.exp)
-        if returnType != tableSymboles.get(function):
-            erreur(f"Incorrect return type expected {typeStr(tableSymboles.get(function))} got {typeStr(returnType)}")
+        expectedType = tableSymboles.returnType(function)
+        if returnType != expectedType:
+            erreur(f"Incorrect return type expected {typeStr(expectedType)} got {typeStr(returnType)}")
         arm_instruction("pop", "{r2}")
         arm_instruction("pop", "{pc}", comment="return")
     else:
