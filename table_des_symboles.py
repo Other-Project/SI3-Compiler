@@ -15,12 +15,15 @@ print_builtins = False
 def log(s):
     print("Table des symboles:", s, file=sys.stderr)
 
+
 def erreur(s):
     print("Erreur:", s, file=sys.stderr)
     exit(1)
 
+
 def typeStr(type):
     return "|".join(type) if isinstance(type, list) else type
+
 
 class TableSymboles:
     def __init__(self):
@@ -29,60 +32,103 @@ class TableSymboles:
             "ecrire": {"type": "vide", "args": [["entier", "booleen"]]},
         }
         self._symbols = {}
+        self._address = 0
+        self._depth = 0
 
     def add(self, declaration):
-        def retrieveArgs():
-            args = []
-            if declaration.declarationArgs:
-                for decl in declaration.declarationArgs.declarations:
-                    if decl.type not in types.keys():
-                        erreur(f"invalid type {decl.type}")
-                    args.append(decl.type)
-            return args
-
-        if type(declaration) not in [
-            arbre_abstrait.DeclarationFunction,
-            arbre_abstrait.Declaration,
-        ]:
-            return
         if declaration.type not in types.keys():
             erreur(f"invalid type {declaration.type}")
-        if self.has(declaration.name):
+        if self.has(declaration.name)[0]:
             erreur(f"Name already used {declaration.name}")
-        self._symbols[declaration.name] = {
-            "type": declaration.type,
-            "args": retrieveArgs(),
-        }
+
+        if type(declaration) == arbre_abstrait.DeclarationFunction:
+            self._symbols[declaration.name] = {
+                "args": [
+                    (
+                        [decl.type for decl in declaration.declarationArgs.declarations]
+                        if declaration.declarationArgs
+                        else []
+                    )
+                ]
+            }
+        elif type(declaration) == arbre_abstrait.Declaration:
+            self._address += 4
+            self._symbols[declaration.name] = {
+                "address": self._address,
+                "depth": self._depth,
+            }
+        else:
+            erreur(f"Unknown declaration type {type(declaration).__name__}")
+        self._symbols[declaration.name]["type"] = declaration.type
+    
+    def remove(self, symbol):
+        if symbol not in self._symbols:
+            erreur(f"Symbol {symbol} not found")
+        if "args" in self._symbols[symbol]:
+            erreur(f"Cannot remove, it's a function")
+        self._symbols.pop(symbol)
+        self._address -= 4
+
+    def enterFunction(self, function):
+        self._depth += 1
+        if function.declarationArgs:
+            for decl in function.declarationArgs.declarations:
+                self.add(decl)
+        log(f"Entered '{function.name}'\n{self}")
+
+    def quitFunction(self, function):
+        for symbol in list(filter(lambda symbol: self._symbols[symbol].get("depth", 0) >= self._depth, self._symbols)):
+            self.remove(symbol)
+        self._depth -= 1
+        log(f"Quitted '{function.name}'\n{self}")
+
 
     def returnType(self, name):
-        symbol = self._symbols[name] or self._builtins[name]
+        symbol = self._symbols.get(name, self._builtins.get(name, None))
         if not symbol:
             erreur(f"Symbol {name} not found")
         return types[symbol["type"]]
 
     def checkArgsType(self, name, args):
-        symbol = self._symbols[name] or self._builtins[name]
+        symbol = self._symbols.get(name, self._builtins.get(name, None))
         if not symbol:
             erreur(f"Symbol {name} not found")
         argsTypes = symbol["args"]
         if len(argsTypes) != len(args):
-            erreur(f"Incorrect number of arguments, expected {len(argsTypes)} got {len(args)}")
+            erreur(
+                f"Incorrect number of arguments, expected {len(argsTypes)} got {len(args)}"
+            )
         for type, arg in zip(argsTypes, args):
             argTypes = type if isinstance(type, list) else [type]
             if arg not in [types[t] for t in argTypes]:
-                self.erreur(f"Incorrect argument type, expected {typeStr(type)} got {arg}")
+                erreur(f"Incorrect argument type, expected {typeStr(type)} got {arg}")
+
+    def address(self, name):
+        symbol = self._symbols.get(name, self._builtins.get(name, None))
+        if not symbol:
+            erreur(f"Symbol {name} not found")
+        if "args" in symbol:
+            erreur(f"{name} is a function")
+        return symbol["address"]
 
     def has(self, name):
-        return name in self._symbols
+        return (name in self._symbols, name in self._builtins)
 
     def _getRow(self, name, value):
-        args = value["args"]
-        return [name, value["type"], f"{len(args)}*4={len(args)*4}", ", ".join([typeStr(arg) for arg in args])]
+        args = value.get("args", None)
+        return [
+            name,
+            value["type"],
+            f"{len(args)}*4={len(args)*4}" if args else "/",
+            ", ".join([typeStr(arg) for arg in args]) if args else "/",
+            value.get("address", "/"),
+            value.get("depth", "/"),
+        ]
 
     def __str__(self) -> str:
         table = PrettyTable()
         table.set_style(SINGLE_BORDER)
-        table.field_names = ["Name", "Type", "Memory", "Args"]
+        table.field_names = ["Name", "Type", "Memory", "Args", "Address", "Depth"]
         if print_builtins:
             for name, value in self._builtins.items():
                 table.add_row(self._getRow(name, value))

@@ -130,9 +130,13 @@ def gen_programme(programme):
     arm_instruction("pop", "{fp, pc}", "", "", "")
 
 def gen_def_fonction(f):
+    tableSymboles.enterFunction(f)
     printifm(f"_{f.name}:")
-    arm_instruction("push", "{lr}")
+    arm_instruction("push", "{fp,lr}")
+    arm_instruction("add", "fp", "sp", "#4", "")
     gen_listeInstructions(f.instructions, f.name)
+    arm_instruction("pop", "{fp, pc}", "", "", "")
+    tableSymboles.quitFunction(f)
 
 """
 Affiche le code arm correspondant à une suite d'instructions
@@ -149,14 +153,29 @@ Affiche le code arm correspondant à une instruction
 """
 def gen_instruction(instruction, function=None):
     if type(instruction) == arbre_abstrait.Function:
-        if instruction.fct == "lire":
-            gen_lire()
-            return arbre_abstrait.Integer
-        elif instruction.fct == "ecrire":
-            gen_ecrire(instruction)
-        elif tableSymboles.has(instruction.fct):
-            arm_instruction("bl", f"_{instruction.fct}")
-            return tableSymboles.returnType(instruction.fct)
+        inProgram, inBuiltins = tableSymboles.has(instruction.fct)
+        if not inProgram and not inBuiltins:
+            erreur(f"Unknown function {instruction.fct}")
+        else:
+            args = instruction.args.listArgs if instruction.args else []
+            argsType = [gen_expression(arg) for arg in args]
+            tableSymboles.checkArgsType(instruction.fct, argsType)
+            if inProgram:
+                arm_instruction("bl", f"_{instruction.fct}")
+                '''for i in range(len(args)-1, -1, -1):
+                    arm_instruction("pop", "{r2}", "", "", f"Unstack arg {i}")'''
+                if tableSymboles.returnType(instruction.fct):
+                    arm_instruction("pop", "{r2}", "", "", "Returned value")
+            else:
+                if instruction.fct == "lire":
+                    gen_lire()
+                elif instruction.fct == "ecrire":
+                    gen_ecrire(instruction)
+                else:
+                    erreur(f"Builtin function not found {instruction.fct}")
+            
+        return tableSymboles.returnType(instruction.fct)
+            
     elif type(instruction) in [arbre_abstrait.While, arbre_abstrait.If]:
         gen_block_operation(instruction)
     elif type(instruction) == arbre_abstrait.Return:
@@ -166,8 +185,7 @@ def gen_instruction(instruction, function=None):
         expectedType = tableSymboles.returnType(function)
         if returnType != expectedType:
             erreur(f"Incorrect return type expected {typeStr(expectedType)} got {typeStr(returnType)}")
-        arm_instruction("pop", "{r2}")
-        arm_instruction("pop", "{pc}", comment="return")
+        arm_instruction("pop", "{r2}", comment="Return value")
     else:
         erreur("génération type instruction non implémenté " + typeStr(type(instruction)))
     return None
@@ -177,9 +195,6 @@ def gen_instruction(instruction, function=None):
 Affiche le code arm correspondant au fait d'envoyer la valeur entière d'une expression sur la sortie standard
 """
 def gen_ecrire(ecrire):
-    gen_expression(
-        ecrire.args.listArgs[0]
-    )  # on calcule et empile la valeur d'expression
     arm_instruction(
         "pop", "{r1}", "", "", ""
     )  # on dépile la valeur d'expression sur r1
@@ -198,7 +213,7 @@ def gen_lire():
     arm_instruction("sub", "sp", "sp", "#4", "Réserve de l’espace sur la pile pour stocker l’entier lu (on fait sp = sp -4)")
     arm_instruction("movs", "r1" , "sp", "", "Copie l’adresse de cet espace dans r1")
     arm_instruction("bl", "scanf", "", "", "Lance scanf pour lire l’entier et le stocker à l’adresse spécifiée par r1")
-    arm_instruction("pop", "{r2}", "", "", "empiler input dans r2")
+    arm_instruction("pop", "{r2}", "", "", "Dépiler l'input dans r2")
 
 def gen_block_operation(instruction):
     endTrue = arm_nouvelle_etiquette()
@@ -228,6 +243,8 @@ def gen_expression(expression):
         return instType
     elif type(expression) == arbre_abstrait.Operation:
         return gen_operation(expression)  # on calcule et empile la valeur de l'opération
+    elif type(expression) == arbre_abstrait.Variable:
+        return gen_variable(expression)
     elif type(expression) == arbre_abstrait.Integer:
         arm_instruction("mov", "r1", "#" + str(expression.valeur), "", "")
         # on met sur la pile la valeur entière
@@ -240,6 +257,14 @@ def gen_expression(expression):
         erreur("type d'expression inconnu " + typeStr(type(expression)))
     return type(expression)
 
+def gen_variable(variable):
+    inProgram, _ = tableSymboles.has(variable.valeur)
+    if not inProgram:
+        erreur(f"Unknown variable {variable.valeur}")
+    offset = tableSymboles.address(variable.valeur)
+    arm_instruction("ldr", "r2", f"[fp, #{offset}]", comment=f"Retrieve {variable.valeur}")
+    arm_instruction("push", "{r2}", comment=f"Stack {variable.valeur}")
+    return tableSymboles.returnType(variable.valeur)
 
 """
 Affiche le code arm pour calculer l'opération et la mettre en haut de la pile
