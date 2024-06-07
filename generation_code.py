@@ -127,11 +127,11 @@ def gen_listeInstructions(listeInstructions):
 """
 Affiche le code arm correspondant à une instruction
 """
-
-
 def gen_instruction(instruction):
     if type(instruction) == arbre_abstrait.Function:
         gen_ecrire(instruction)
+    elif type(instruction) in [arbre_abstrait.While, arbre_abstrait.If]:
+        gen_block_operation(instruction)
     else:
         erreur("génération type instruction non implémenté " + str(type(instruction)))
 
@@ -139,8 +139,6 @@ def gen_instruction(instruction):
 """
 Affiche le code arm correspondant au fait d'envoyer la valeur entière d'une expression sur la sortie standard
 """
-
-
 def gen_ecrire(ecrire):
     gen_expression(
         ecrire.args.listArgs[0]
@@ -164,12 +162,27 @@ def gen_lire():
     arm_instruction("movs", "{r1}" , "sp", "", "Copie l’adresse de cet espace dans r1")
     arm_instruction("bl", "scanf", "", "", "Lance scanf pour lire l’entier et le stocker à l’adresse spécifiée par r1")
 
+def gen_block_operation(instruction):
+    endTrue = arm_nouvelle_etiquette()
+    ifFalse = arm_nouvelle_etiquette()
+    
+    if type(instruction) == arbre_abstrait.While:
+        arm_instruction(f"{endTrue}:", comment="true condition jump")
+    gen_expression(instruction.cond)
+    arm_instruction("pop", "{r0}")
+    arm_instruction("cmp", "r0", "#1")
+    arm_instruction("bNE", ifFalse, comment="condition is false")
+    gen_listeInstructions(instruction.instructions)
+    arm_instruction("b", endTrue)
+    arm_instruction(f"{ifFalse}:", comment="false condition jump")
+    if type(instruction) == arbre_abstrait.If:
+        if instruction.elseInstruction:
+            gen_listeInstructions(instruction.elseInstruction.instructions)
+        arm_instruction(f"{endTrue}:", comment="true condition jump")
 
 """
 Affiche le code arm pour calculer et empiler la valeur d'une expression
 """
-
-
 def gen_expression(expression):
     if type(expression) == arbre_abstrait.Operation:
         return gen_operation(expression)  # on calcule et empile la valeur de l'opération
