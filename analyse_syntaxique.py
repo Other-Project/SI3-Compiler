@@ -5,12 +5,14 @@ import arbre_abstrait
 
 
 class FloParser(Parser):
+
+    if __name__ == "__main__":
+        debugfile = "parser.out"
+
     # On récupère la liste des lexèmes de l'analyse lexicale
     tokens = FloLexer.tokens
 
     # Règles gramaticales et actions associées
-
-    debugfile = __name__ == "__main__"
 
     @_("instructions")
     def prog(self, p):
