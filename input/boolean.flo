@@ -17,6 +17,11 @@ ecrire(3 > 2);
 ecrire(3 < 2);
 
 ecrire(2 * 3 == 6);
+ecrire(2 * 3 != 6 * 1);
+ecrire(2 * 3 > 7);
+ecrire(Faux == Vrai);
+ecrire(Vrai == Vrai);
+ecrire(7 == 4+3);
 
 # booleen bool = Vrai;
 # entier value = 2;

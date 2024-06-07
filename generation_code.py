@@ -237,6 +237,7 @@ def gen_operation(operation):
     else:
         erreur(f'operateur "{op}" non implémenté pour le type {type1}')
     arm_instruction("push", "{r0}", "", "", "empile le résultat")
+    return type1
 
 def gen_operation_integer(op):
     code = {

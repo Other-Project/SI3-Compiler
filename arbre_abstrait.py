@@ -16,8 +16,8 @@ class Program:
         afficher("</program>",indent)
 
 class Instructions:
-    def __init__(self):
-        self.instructions = []
+    def __init__(self, instructions = None):
+        self.instructions = instructions if instructions else []
     def afficher(self,indent=0):
         afficher("<instructions>",indent)
         for instruction in self.instructions:
@@ -138,16 +138,16 @@ class While:
         afficher("</while>",indent)
 
 class If:
-    def __init__(self,cond,instructions):
+    def __init__(self,cond,instructions, elseInstruction = None):
         self.cond = cond
         self.instructions = instructions
-        self.elseList = []
+        self.elseInstruction = elseInstruction
     def afficher(self,indent=0):
         afficher(f"<if>",indent)
         self.cond.afficher(indent+1)
         self.instructions.afficher(indent+1)
-        for elseCond in self.elseList:
-            elseCond.afficher(indent+1)
+        if self.elseInstruction:
+            self.elseInstruction.afficher(indent+1)
         afficher("</if>",indent)
 
 class Else:
