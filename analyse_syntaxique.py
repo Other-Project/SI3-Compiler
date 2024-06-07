@@ -20,33 +20,27 @@ class FloParser(Parser):
     def prog(self, p):
         return arbre_abstrait.Program(p.instructions, p.functions)
 
-    @_('IF "(" expr ")" "{" instructions "}"')
+    @_('IF "(" expr ")" "{" instructions "}" condition_else')
     def condition(self, p):
-        return arbre_abstrait.If(p.expr, p.instructions)
+        return arbre_abstrait.If(p.expr, p.instructions, p.condition_else)
 
-    @_("condition")
-    def condition_elseif(self, p):
-        return p.condition
-
-    @_("condition_elseif ELSE condition")
-    def condition_elseif(self, p):
-        p.condition_elseif.elseList.append(arbre_abstrait.Else(p.condition))
-        return p.condition_elseif
-
-    @_("condition_elseif")
+    @_("")
     def condition_else(self, p):
-        return p.condition_elseif
+        pass
 
-    @_('condition_elseif ELSE "{" instructions "}"')
+    @_("ELSE condition")
     def condition_else(self, p):
-        p.condition_elseif.elseList.append(arbre_abstrait.Else(p.instructions))
-        return p.condition_elseif
+        return arbre_abstrait.Else(arbre_abstrait.Instructions([p.condition]))
+    
+    @_('ELSE "{" instructions "}"')
+    def condition_else(self, p):
+        return arbre_abstrait.Else(p.instructions)
 
     @_('WHILE "(" expr ")" "{" instructions "}"')
     def while_loop(self, p):
         return arbre_abstrait.While(p.expr, p.instructions)
 
-    @_("condition_else", "while_loop")
+    @_("condition", "while_loop")
     def block_operator(self, p):
         return p[0]
 
