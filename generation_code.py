@@ -131,7 +131,10 @@ Affiche le code arm correspondant à une instruction
 
 def gen_instruction(instruction):
     if type(instruction) == arbre_abstrait.Function:
-        gen_ecrire(instruction)
+        if instruction.fct == "lire":
+            gen_lire()
+        else :
+            gen_ecrire(instruction) 
     else:
         erreur("génération type instruction non implémenté " + str(type(instruction)))
 
@@ -159,11 +162,13 @@ Affiche le code arm correspondant au fait de mettre en pause le programme, et pe
 de caractère qui est interprétée comme un entier.
 """
 def gen_lire():
-    arm_instruction("ldr", "{r0}", "=.LC0", "", "Charge l’adresse de la chaîne de format pour scanf dans r0")
+    arm_instruction("ldr", "r0", "=.LC0", "", "Charge l’adresse de la chaîne de format pour scanf dans r0")
     arm_instruction("sub", "sp", "sp", "#4", "Réserve de l’espace sur la pile pour stocker l’entier lu (on fait sp = sp -4)")
-    arm_instruction("movs", "{r1}" , "sp", "", "Copie l’adresse de cet espace dans r1")
+    arm_instruction("movs", "r1" , "sp", "", "Copie l’adresse de cet espace dans r1")
     arm_instruction("bl", "scanf", "", "", "Lance scanf pour lire l’entier et le stocker à l’adresse spécifiée par r1")
-
+    arm_instruction("ldr", "r1", "[sp]", "", "Charge l’entier lu de la pile vers r1")
+    arm_instruction("add", "sp", "sp", "#4", "Nettoie la pile (sp = sp + 4)")
+    arm_instruction("push", "{r1}", "", "", "Empile la valeur lue sur la pile")
 
 """
 Affiche le code arm pour calculer et empiler la valeur d'une expression
@@ -171,7 +176,9 @@ Affiche le code arm pour calculer et empiler la valeur d'une expression
 
 
 def gen_expression(expression):
-    if type(expression) == arbre_abstrait.Operation:
+    if type(expression) == arbre_abstrait.Function:
+        gen_instruction(expression)
+    elif type(expression) == arbre_abstrait.Operation:
         gen_operation(expression)  # on calcule et empile la valeur de l'opération
     elif type(expression) == arbre_abstrait.Integer:
         arm_instruction("mov", "r1", "#" + str(expression.valeur), "", "")

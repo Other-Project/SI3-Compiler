@@ -1,1 +1,1 @@
-lire();
+ecrire(lire());
