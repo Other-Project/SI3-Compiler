@@ -111,9 +111,9 @@ def gen_programme(programme):
     printifm("main:")
     arm_instruction("push", "{fp,lr}", "", "", "")
     arm_instruction("add", "fp", "sp", "#4", "")
-    for instruction in programme.listeInstructions.instructions:
-        tableSymboles.add(instruction)
-    print(tableSymboles, file=sys.stderr)
+    for function in programme.listeFunctions.functions:
+        tableSymboles.add(function)
+    printift(tableSymboles)
     gen_listeInstructions(programme.listeInstructions)
     arm_instruction("mov", "r0", "#0", "", "")
     arm_instruction("pop", "{fp, pc}", "", "", "")
@@ -320,7 +320,7 @@ if __name__ == "__main__":
     if sys.argv[1] == "-arm":
         afficher_code = True
     else:
-        afficher_tableSymboles = True
+        afficher_table = True
     with open(sys.argv[2], "r") as f:
         data = f.read()
         try:

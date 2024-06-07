@@ -44,18 +44,6 @@ class FloParser(Parser):
     def block_operator(self, p):
         return p[0]
 
-    @_('instruction ";"')
-    def instructions(self, p):
-        l = arbre_abstrait.Instructions()
-        l.instructions.insert(0, p.instruction)
-        return l
-
-    @_("block_operator")
-    def instructions(self, p):
-        l = arbre_abstrait.Instructions()
-        l.instructions.insert(0, p.block_operator)
-        return l
-
     @_('instruction ";" instructions')
     def instructions(self, p):
         p.instructions.instructions.insert(0, p.instruction)
@@ -65,6 +53,10 @@ class FloParser(Parser):
     def instructions(self, p):
         p.instructions.instructions.insert(0, p.block_operator)
         return p.instructions
+
+    @_("")
+    def instructions(self, p):
+        return arbre_abstrait.Instructions()
 
     @_("function")
     def expr(self, p):
@@ -82,7 +74,6 @@ class FloParser(Parser):
 
     @_('functions declarationFunction')
     def functions(self, p):
-        print(p.functions)
         p.functions.append(p.declarationFunction)
         return p.functions
 
