@@ -136,12 +136,16 @@ def gen_instruction(instruction):
     if type(instruction) == arbre_abstrait.Function:
         if instruction.fct == "lire":
             gen_lire()
-        else:
+            return arbre_abstrait.Integer
+        elif instruction.fct == "ecrire":
             gen_ecrire(instruction)
+        else:
+            return tableSymboles.get(instruction.fct)
     elif type(instruction) in [arbre_abstrait.While, arbre_abstrait.If]:
         gen_block_operation(instruction)
     else:
         erreur("génération type instruction non implémenté " + str(type(instruction)))
+    return None
 
 
 """
@@ -194,10 +198,11 @@ Affiche le code arm pour calculer et empiler la valeur d'une expression
 """
 def gen_expression(expression):
     if type(expression) == arbre_abstrait.Function:
-        gen_instruction(expression)
+        instType = gen_instruction(expression)
         arm_instruction("push", "{r2}", "", "", "")
+        return instType
     elif type(expression) == arbre_abstrait.Operation:
-        gen_operation(expression)  # on calcule et empile la valeur de l'opération
+        return gen_operation(expression)  # on calcule et empile la valeur de l'opération
     elif type(expression) == arbre_abstrait.Integer:
         arm_instruction("mov", "r1", "#" + str(expression.valeur), "", "")
         # on met sur la pile la valeur entière

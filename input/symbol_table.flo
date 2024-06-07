@@ -2,11 +2,14 @@ entier f() {
 	retourner 2;
 }
 entier g() {
-	retourner 4;
+	retourner i();
 }
 booleen h() {
 	retourner Vrai;
 }
+entier i() {
+	retourner 4;
+}
 
-#ecrire(f() + g());
-#ecrire(non h());
+ecrire(f() + i());
+ecrire(non h());

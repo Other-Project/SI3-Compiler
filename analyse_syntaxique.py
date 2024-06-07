@@ -59,7 +59,7 @@ class FloParser(Parser):
         return arbre_abstrait.Instructions()
 
     @_("function")
-    def expr(self, p):
+    def variable(self, p):
         return p.function
 
     @_("function")

@@ -44,7 +44,7 @@ class Function:
         afficher(f"<function name=\"{self.fct}\"{('' if self.args else '/')}>",indent)
         if self.args:
             self.args.afficher(indent+1)
-        afficher("</function>",indent)
+            afficher("</function>",indent)
 
 class Return:
     def __init__(self,exp):
@@ -59,8 +59,8 @@ class Args:
         self.listArgs = []
     def afficher(self, indent=0):
         afficher(f"<arguments>", indent)
-        for i in range(len(self.listArgs)):
-            self.listArgs[i].afficher(indent + 1)
+        for arg in self.listArgs:
+            arg.afficher(indent + 1)
         afficher("</arguments>", indent)
     def append(self, expr):
         self.listArgs.append(expr)
