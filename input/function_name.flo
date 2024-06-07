@@ -1,1 +1,11 @@
+entier lafonction(entier e1, entier e2, entier e3, entier e4, entier e5, entier e6, entier e7){
+	retourner e1 + e2 + e3 + e4 + e5 + e6 + e7;
+}
+entier unefonction(entier e1, entier e2, entier e3, entier e4){
+	retourner e1 + e2 + e3 + e4;
+}
+entier mafonction(entier e1, entier e2){
+	retourner e1 * e2;
+}
+
 ecrire(lafonction(1,2,3,unefonction(10,12,14,1000),5,mafonction(3,5),8));

@@ -43,13 +43,11 @@ class TableSymboles:
 
         if type(declaration) == arbre_abstrait.DeclarationFunction:
             self._symbols[declaration.name] = {
-                "args": [
-                    (
-                        [decl.type for decl in declaration.declarationArgs.declarations]
-                        if declaration.declarationArgs
-                        else []
-                    )
-                ]
+                "args": (
+                    [decl.type for decl in declaration.declarationArgs.declarations]
+                    if declaration.declarationArgs
+                    else []
+                )
             }
         elif type(declaration) == arbre_abstrait.Declaration:
             self._address += 4
@@ -60,7 +58,7 @@ class TableSymboles:
         else:
             erreur(f"Unknown declaration type {type(declaration).__name__}")
         self._symbols[declaration.name]["type"] = declaration.type
-    
+
     def remove(self, symbol):
         if symbol not in self._symbols:
             erreur(f"Symbol {symbol} not found")
@@ -77,11 +75,15 @@ class TableSymboles:
         log(f"Entered '{function.name}'\n{self}")
 
     def quitFunction(self, function):
-        for symbol in list(filter(lambda symbol: self._symbols[symbol].get("depth", 0) >= self._depth, self._symbols)):
+        for symbol in list(
+            filter(
+                lambda symbol: self._symbols[symbol].get("depth", 0) >= self._depth,
+                self._symbols,
+            )
+        ):
             self.remove(symbol)
         self._depth -= 1
         log(f"Quitted '{function.name}'\n{self}")
-
 
     def returnType(self, name):
         symbol = self._symbols.get(name, self._builtins.get(name, None))

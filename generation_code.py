@@ -133,9 +133,9 @@ def gen_def_fonction(f):
     tableSymboles.enterFunction(f)
     printifm(f"_{f.name}:")
     arm_instruction("push", "{fp,lr}")
-    arm_instruction("add", "fp", "sp", "#4", "")
+    arm_instruction("add", "fp", "sp", "#4")
     gen_listeInstructions(f.instructions, f.name)
-    arm_instruction("pop", "{fp, pc}", "", "", "")
+    arm_instruction("pop", "{fp, pc}")
     tableSymboles.quitFunction(f)
 
 """
