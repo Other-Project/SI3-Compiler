@@ -29,6 +29,7 @@ class TableSymboles:
         self._symbols = {}
         self._address = 0
         self._depth = 0
+        self._function = None
 
     def add(self, declaration):
         if declaration.type not in types.keys():
@@ -58,6 +59,7 @@ class TableSymboles:
 
     def enterFunction(self, function):
         self._depth += 1
+        self._function = function.name
         if function.declarationArgs:
             for decl in function.declarationArgs.declarations:
                 self.add(decl)
@@ -72,7 +74,11 @@ class TableSymboles:
         ):
             self.remove(symbol)
         self._depth -= 1
+        self._function = None
         gen_code.printift(f"Quitted '{function.name}'\n{self}")
+
+    def getFunction(self):
+        return self._function
 
     def _get_symbol(self, name):
         symbol = self._symbols.get(name, self._builtins.get(name, None))

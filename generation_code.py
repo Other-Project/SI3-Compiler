@@ -128,18 +128,18 @@ def gen_def_fonction(f):
     printifm(f"_{f.name}:")
     arm_instruction("push", "{fp,lr}")
     arm_instruction("add", "fp", "sp", "#4")
-    gen_listeInstructions(f.instructions, f.name)
+    gen_listeInstructions(f.instructions)
     arm_instruction("pop", "{fp, pc}")
     tableSymboles.quitFunction(f)
 
 
-def gen_listeInstructions(listeInstructions, function=None):
+def gen_listeInstructions(listeInstructions):
     """Affiche le code arm correspondant à une suite d'instructions"""
     for instruction in listeInstructions.instructions:
-        gen_instruction(instruction, function)
+        gen_instruction(instruction)
 
 
-def gen_instruction(instruction, function=None):
+def gen_instruction(instruction):
     """Affiche le code arm correspondant à une instruction"""
     if type(instruction) == arbre_abstrait.Function:
         inProgram, inBuiltins = tableSymboles.has(instruction.fct)
@@ -165,6 +165,7 @@ def gen_instruction(instruction, function=None):
     elif type(instruction) in [arbre_abstrait.While, arbre_abstrait.If]:
         gen_block_operation(instruction)
     elif type(instruction) == arbre_abstrait.Return:
+        function = tableSymboles.getFunction()
         if not function:
             erreur("Return keyword is only valid inside a function")
         returnType = gen_expression(instruction.exp)
