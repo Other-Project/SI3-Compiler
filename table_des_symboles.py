@@ -32,9 +32,9 @@ class TableSymboles:
 
     def add(self, declaration):
         if declaration.type not in types.keys():
-            erreur(f"invalid type {declaration.type}")
+            gen_code.erreur(f"invalid type {declaration.type}")
         if self.has(declaration.name)[0]:
-            erreur(f"Name already used {declaration.name}")
+            gen_code.erreur(f"Name already used {declaration.name}")
 
         if type(declaration) == arbre_abstrait.DeclarationFunction:
             self._symbols[declaration.name] = {"args": ([decl.type for decl in declaration.declarationArgs.declarations] if declaration.declarationArgs else [])}
@@ -45,14 +45,14 @@ class TableSymboles:
                 "depth": self._depth,
             }
         else:
-            erreur(f"Unknown declaration type {type(declaration).__name__}")
+            gen_code.erreur(f"Unknown declaration type {type(declaration).__name__}")
         self._symbols[declaration.name]["type"] = declaration.type
 
     def remove(self, symbol):
         if symbol not in self._symbols:
-            erreur(f"Symbol {symbol} not found")
+            gen_code.erreur(f"Symbol {symbol} not found")
         if "args" in self._symbols[symbol]:
-            erreur(f"Cannot remove, it's a function")
+            gen_code.erreur(f"Cannot remove, it's a function")
         self._symbols.pop(symbol)
         self._address -= 4
 
@@ -77,7 +77,7 @@ class TableSymboles:
     def _get_symbol(self, name):
         symbol = self._symbols.get(name, self._builtins.get(name, None))
         if not symbol:
-            erreur(f"Symbol {name} not found")
+            gen_code.erreur(f"Symbol {name} not found")
         return symbol
 
     def returnType(self, name):
@@ -86,22 +86,22 @@ class TableSymboles:
     def checkArgsType(self, name, args):
         argsTypes = self._get_symbol(name)["args"]
         if len(argsTypes) != len(args):
-            erreur(f"Incorrect number of arguments, expected {len(argsTypes)} got {len(args)}")
+            gen_code.erreur(f"Incorrect number of arguments, expected {len(argsTypes)} got {len(args)}")
         for type, arg in zip(argsTypes, args):
             argTypes = type if isinstance(type, list) else [type]
             if arg not in [types[t] for t in argTypes]:
-                erreur(f"Incorrect argument type, expected {gen_code.typeStr(type)} got {arg}")
+                gen_code.erreur(f"Incorrect argument type, expected {gen_code.typeStr(type)} got {arg}")
 
     def address(self, name):
         symbol = self._get_symbol(name)
         if "args" in symbol:
-            erreur(f"{name} is a function")
+            gen_code.erreur(f"{name} is a function")
         return symbol["address"]
 
     def memory(self, name):
         symbol = self._get_symbol(name)
         if "args" not in symbol:
-            erreur(f"{name} isn't a function")
+            gen_code.erreur(f"{name} isn't a function")
         return len(symbol["args"]) * 4
 
     def has(self, name):
