@@ -202,7 +202,9 @@ def gen_block_operation(instruction):
 
     if type(instruction) == arbre_abstrait.While:
         arm_instruction(f"{endTrue}:", comment="true condition jump")
-    gen_expression(instruction.cond)
+    conditionType = gen_expression(instruction.cond)
+    if conditionType != arbre_abstrait.Boolean:
+        erreur(f"Wrong condition type, expected {typeStr(arbre_abstrait.Boolean)}, got {typeStr(conditionType)}")
     arm_instruction("pop", "{r0}")
     arm_instruction("cmp", "r0", "#1")
     arm_instruction("bNE", ifFalse, comment="condition is false")

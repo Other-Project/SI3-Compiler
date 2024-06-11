@@ -90,7 +90,7 @@ class TableSymboles:
         for type, arg in zip(argsTypes, args):
             argTypes = type if isinstance(type, list) else [type]
             if arg not in [types[t] for t in argTypes]:
-                gen_code.erreur(f"Incorrect argument type, expected {gen_code.typeStr(type)} got {arg}")
+                gen_code.erreur(f"Incorrect argument type, expected {gen_code.typeStr(type)} got {gen_code.typeStr(arg)}")
 
     def address(self, name):
         symbol = self._get_symbol(name)
