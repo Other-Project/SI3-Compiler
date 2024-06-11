@@ -8,6 +8,7 @@ num_etiquette_courante = -1  # Permet de donner des noms différents à toutes l
 
 afficher_table = False
 afficher_code = False
+print_builtins = False
 
 tableSymboles = TableSymboles()
 
@@ -42,8 +43,20 @@ def printift(*args, **kwargs):
         print(*args, **kwargs)
 
 
-def typeStr(type):
-    return type.__name__
+"""
+Converti un type en une chaîne de caractères
+"""
+
+
+def typeStr(t):
+	if isinstance(t, type):
+		return t.__name__
+	elif isinstance(t, list):
+		return "|".join([typeStr(_t) for _t in t])
+	elif isinstance(t, str):
+		return t
+	else:
+		return str(t)
 
 """
 Fonction locale, permet d'afficher un commentaire dans le code arm.

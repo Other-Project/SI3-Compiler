@@ -2,27 +2,18 @@ import sys
 import arbre_abstrait
 from prettytable import PrettyTable, SINGLE_BORDER
 
+if __name__ == "__main__":
+	print("Call generation_code.py instead")
+	exit(1)
+
+import __main__ as gen_code
+
 
 types = {
     "entier": arbre_abstrait.Integer,
     "booleen": arbre_abstrait.Boolean,
     "vide": None,
 }
-
-print_builtins = False
-
-
-def log(s):
-    print("Table des symboles:", s, file=sys.stderr)
-
-
-def erreur(s):
-    print("Erreur:", s, file=sys.stderr)
-    exit(1)
-
-
-def typeStr(type):
-    return "|".join(type) if isinstance(type, list) else type
 
 
 class TableSymboles:
@@ -72,7 +63,7 @@ class TableSymboles:
         if function.declarationArgs:
             for decl in function.declarationArgs.declarations:
                 self.add(decl)
-        log(f"Entered '{function.name}'\n{self}")
+        gen_code.printift(f"Entered '{function.name}'\n{self}")
 
     def quitFunction(self, function):
         for symbol in list(
@@ -83,7 +74,7 @@ class TableSymboles:
         ):
             self.remove(symbol)
         self._depth -= 1
-        log(f"Quitted '{function.name}'\n{self}")
+        gen_code.printift(f"Quitted '{function.name}'\n{self}")
 
     def returnType(self, name):
         symbol = self._symbols.get(name, self._builtins.get(name, None))
@@ -103,7 +94,7 @@ class TableSymboles:
         for type, arg in zip(argsTypes, args):
             argTypes = type if isinstance(type, list) else [type]
             if arg not in [types[t] for t in argTypes]:
-                erreur(f"Incorrect argument type, expected {typeStr(type)} got {arg}")
+                erreur(f"Incorrect argument type, expected {gen_code.typeStr(type)} got {arg}")
 
     def address(self, name):
         symbol = self._symbols.get(name, self._builtins.get(name, None))
@@ -122,7 +113,7 @@ class TableSymboles:
             name,
             value["type"],
             f"{len(args)}*4={len(args)*4}" if args else "/",
-            ", ".join([typeStr(arg) for arg in args]) if args else "/",
+            ", ".join([gen_code.typeStr(arg) for arg in args]) if args else "/",
             value.get("address", "/"),
             value.get("depth", "/"),
         ]
@@ -131,7 +122,7 @@ class TableSymboles:
         table = PrettyTable()
         table.set_style(SINGLE_BORDER)
         table.field_names = ["Name", "Type", "Memory", "Args", "Address", "Depth"]
-        if print_builtins:
+        if gen_code.print_builtins:
             for name, value in self._builtins.items():
                 table.add_row(self._getRow(name, value))
             table._dividers[-1] = True
