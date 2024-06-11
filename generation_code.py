@@ -117,7 +117,7 @@ def gen_programme(programme: arbre_abstrait.Program):
     arm_instruction("push", "{fp,lr}")
     arm_instruction("add", "fp", "sp", "#4")
 
-    gen_listeInstructions(programme.listeInstructions, False)
+    gen_listeInstructions(programme.listeInstructions)
 
     arm_instruction("mov", "r0", "#0")
     arm_instruction("pop", "{fp, pc}")
