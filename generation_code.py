@@ -173,6 +173,7 @@ def gen_instruction(instruction):
         if returnType != expectedType:
             erreur(f"Incorrect return type expected {typeStr(expectedType)} got {typeStr(returnType)}")
         arm_instruction("pop", "{r2}", comment="Return value")
+        arm_instruction("pop", "{fp, pc}")
     else:
         erreur("génération type instruction non implémenté " + typeStr(type(instruction)))
     return None
