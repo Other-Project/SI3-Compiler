@@ -40,11 +40,11 @@ class TableSymboles:
         if type(declaration) == arbre_abstrait.DeclarationFunction:
             self._symbols[declaration.name] = {"args": ([decl.type for decl in declaration.declarationArgs.declarations] if declaration.declarationArgs else [])}
         elif type(declaration) == arbre_abstrait.Declaration:
-            self._address += 4
             self._symbols[declaration.name] = {
                 "address": self._address,
                 "depth": self._depth,
             }
+            self._address -= 4
         else:
             gen_code.erreur(f"Unknown declaration type {type(declaration).__name__}")
         self._symbols[declaration.name]["type"] = declaration.type
@@ -55,14 +55,16 @@ class TableSymboles:
         if "args" in self._symbols[symbol]:
             gen_code.erreur(f"Cannot remove, it's a function")
         self._symbols.pop(symbol)
-        self._address -= 4
+        self._address += 4
 
     def enterFunction(self, function):
         self._depth += 1
         self._function = function.name
+        self._address += self.memory(self._function)
         if function.declarationArgs:
-            for decl in reversed(function.declarationArgs.declarations):
+            for decl in function.declarationArgs.declarations:
                 self.add(decl)
+        self._address -= 4
         gen_code.printift(f"Entered '{function.name}'\n{self}")
 
     def quitFunction(self):
@@ -75,6 +77,7 @@ class TableSymboles:
             self.remove(symbol)
         gen_code.printift(f"Quitted '{self._function}'\n{self}")
         self._depth -= 1
+        self._address -= self.memory(self._function) - 4
         self._function = None
 
     def getFunction(self):
