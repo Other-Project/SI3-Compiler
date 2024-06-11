@@ -130,7 +130,7 @@ def gen_def_fonction(f):
     arm_instruction("add", "fp", "sp", "#4")
     gen_listeInstructions(f.instructions)
     arm_instruction("pop", "{fp, pc}")
-    tableSymboles.quitFunction(f)
+    tableSymboles.quitFunction()
 
 
 def gen_listeInstructions(listeInstructions):

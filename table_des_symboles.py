@@ -65,7 +65,7 @@ class TableSymboles:
                 self.add(decl)
         gen_code.printift(f"Entered '{function.name}'\n{self}")
 
-    def quitFunction(self, function):
+    def quitFunction(self):
         for symbol in list(
             filter(
                 lambda symbol: self._symbols[symbol].get("depth", 0) >= self._depth,
@@ -73,9 +73,9 @@ class TableSymboles:
             )
         ):
             self.remove(symbol)
+        gen_code.printift(f"Quitted '{self._function}'\n{self}")
         self._depth -= 1
         self._function = None
-        gen_code.printift(f"Quitted '{function.name}'\n{self}")
 
     def getFunction(self):
         return self._function
