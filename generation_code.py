@@ -147,6 +147,10 @@ def gen_instruction(instruction):
         gen_block_operation(instruction)
     elif type(instruction) == arbre_abstrait.Return:
         gen_return(instruction)
+    elif type(instruction) == arbre_abstrait.Declaration:
+        gen_def_variable(instruction)
+    elif type(instruction) == arbre_abstrait.Assignment:
+        gen_assign_variable(instruction)
     else:
         erreur("génération type instruction non implémenté " + typeStr(type(instruction)))
     return None
@@ -223,6 +227,22 @@ def gen_block_operation(instruction):
         if instruction.elseInstruction:
             gen_listeInstructions(instruction.elseInstruction.instructions)
         arm_instruction(f"{endTrue}:", comment="true condition jump")
+
+def gen_def_variable(instruction: arbre_abstrait.Declaration):
+    erreur("Not implemented yet")
+
+def gen_assign_variable(instruction: arbre_abstrait.Assignment):
+    inProgram, _ = tableSymboles.has(instruction.variable)
+    if not inProgram:
+        erreur(f"Unknown variable {instruction.variable}")
+    valueType = gen_expression(instruction.value)
+    expectedType = tableSymboles.returnType(instruction.variable)
+    if valueType != expectedType:
+        erreur(f"Invalid assignment, expected type {typeStr(expectedType)}, got {typeStr(valueType)}")
+    offset = tableSymboles.address(instruction.variable)
+    arm_instruction("pop", "{r2}")
+    arm_instruction("str", "r2", f"[fp, #{offset}]", comment=f"Assign {instruction.variable}")
+    return tableSymboles.returnType(instruction.variable)
 
 
 def gen_expression(expression):
