@@ -228,8 +228,10 @@ def gen_block_operation(instruction):
             gen_listeInstructions(instruction.elseInstruction.instructions)
         arm_instruction(f"{endTrue}:", comment="true condition jump")
 
+
 def gen_def_variable(instruction: arbre_abstrait.Declaration):
     erreur("Not implemented yet")
+
 
 def gen_assign_variable(instruction: arbre_abstrait.Assignment):
     inProgram, _ = tableSymboles.has(instruction.variable)
@@ -352,18 +354,33 @@ def gen_operation_boolean(op):
     return True
 
 
+def usage(options):
+    print("usage: python3 generation_code.py [OPTIONS] NOM_FICHIER_SOURCE.flo")
+    if options and len(options) > 0:
+        options = "\n\t".join(options) 
+        print(f"options:\n\t{options}")
+    exit(1)
+
+
 if __name__ == "__main__":
     afficher_arm = True
     lexer = FloLexer()
     parser = FloParser()
-    if len(sys.argv) < 3 or sys.argv[1] not in ["-arm", "-table"]:
-        print("usage: python3 generation_code.py -arm|-table NOM_FICHIER_SOURCE.flo")
-        exit(1)
-    if sys.argv[1] == "-arm":
-        afficher_code = True
+    options = {"-arm": "afficher_code", "-table": "afficher_table", "-builtin": "print_builtins"}
+
+    if len(sys.argv) < 2 or sys.argv[-1].startswith("-"):
+        usage(options.keys())
+
+    if len(sys.argv) < 3:
+        afficher_code = True # -arm is the default
     else:
-        afficher_table = True
-    with open(sys.argv[2], "r") as f:
+        for i in range(1, len(sys.argv) - 1):
+            if sys.argv[i] in options:
+                globals()[options[sys.argv[i]]] = True
+            else:
+                usage(options.keys())
+
+    with open(sys.argv[-1], "r") as f:
         data = f.read()
         try:
             arbre = parser.parse(lexer.tokenize(data))
