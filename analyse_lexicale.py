@@ -71,9 +71,7 @@ class FloLexer(Lexer):
 
     # En cas d'erreur, indique où elle se trouve
     def error(self, t):
-        print(
-            f'Ligne{self.lineno}: caractère inattendu "{t.value[0]}"', file=sys.stderr
-        )
+        print(f'Ligne{self.lineno}: caractère inattendu "{t.value[0]}"', file=sys.stderr)
         self.index += 1
         exit(1)
 

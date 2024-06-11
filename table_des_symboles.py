@@ -3,10 +3,14 @@ import arbre_abstrait
 from prettytable import PrettyTable, SINGLE_BORDER
 
 if __name__ == "__main__":
-	print("Call generation_code.py instead")
-	exit(1)
+    print("Call generation_code.py instead")
+    exit(1)
 
 import __main__ as gen_code
+
+if __name__ == "__main__":
+    print("Call generation_code.py instead")
+    exit(1)
 
 
 types = {
@@ -33,13 +37,7 @@ class TableSymboles:
             erreur(f"Name already used {declaration.name}")
 
         if type(declaration) == arbre_abstrait.DeclarationFunction:
-            self._symbols[declaration.name] = {
-                "args": (
-                    [decl.type for decl in declaration.declarationArgs.declarations]
-                    if declaration.declarationArgs
-                    else []
-                )
-            }
+            self._symbols[declaration.name] = {"args": ([decl.type for decl in declaration.declarationArgs.declarations] if declaration.declarationArgs else [])}
         elif type(declaration) == arbre_abstrait.Declaration:
             self._address += 4
             self._symbols[declaration.name] = {
@@ -88,9 +86,7 @@ class TableSymboles:
             erreur(f"Symbol {name} not found")
         argsTypes = symbol["args"]
         if len(argsTypes) != len(args):
-            erreur(
-                f"Incorrect number of arguments, expected {len(argsTypes)} got {len(args)}"
-            )
+            erreur(f"Incorrect number of arguments, expected {len(argsTypes)} got {len(args)}")
         for type, arg in zip(argsTypes, args):
             argTypes = type if isinstance(type, list) else [type]
             if arg not in [types[t] for t in argTypes]:

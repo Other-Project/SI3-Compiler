@@ -18,7 +18,7 @@ class FloParser(Parser):
     def prog(self, p):
         return arbre_abstrait.Program(p.instructions)
 
-    @_('functions instructions')
+    @_("functions instructions")
     def prog(self, p):
         return arbre_abstrait.Program(p.instructions, p.functions)
 
@@ -33,7 +33,7 @@ class FloParser(Parser):
     @_("ELSE condition")
     def condition_else(self, p):
         return arbre_abstrait.Else(arbre_abstrait.Instructions([p.condition]))
-    
+
     @_('ELSE "{" instructions "}"')
     def condition_else(self, p):
         return arbre_abstrait.Else(p.instructions)
@@ -68,17 +68,16 @@ class FloParser(Parser):
     def instruction(self, p):
         return p.function
 
-    @_('declarationFunction')
+    @_("declarationFunction")
     def functions(self, p):
         l = arbre_abstrait.Functions()
-        l.functions.insert(0,p.declarationFunction)
+        l.functions.insert(0, p.declarationFunction)
         return l
 
-    @_('functions declarationFunction')
+    @_("functions declarationFunction")
     def functions(self, p):
         p.functions.append(p.declarationFunction)
         return p.functions
-
 
     @_('IDENTIFIANT "(" args ")"')
     def function(self, p):
@@ -106,17 +105,17 @@ class FloParser(Parser):
     @_('TYPE IDENTIFIANT "," declarationArgs')
     def declarationArgs(self, p):
         declaration = arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT)
-        p.declarationArgs.declarations.insert(0,declaration)
+        p.declarationArgs.declarations.insert(0, declaration)
         return p.declarationArgs
 
-    @_('TYPE IDENTIFIANT')
+    @_("TYPE IDENTIFIANT")
     def declarationArgs(self, p):
         a = arbre_abstrait.ArgsDeclaration()
         declaration = arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT)
         a.declarations.append(declaration)
         return a
 
-    @_('')
+    @_("")
     def declarationArgs(self, p):
         pass
 
@@ -124,7 +123,7 @@ class FloParser(Parser):
     def instruction(self, p):
         return arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT, p.expr)
 
-    @_('TYPE IDENTIFIANT')
+    @_("TYPE IDENTIFIANT")
     def instruction(self, p):
         return arbre_abstrait.Declaration(p.TYPE, p.IDENTIFIANT)
 
@@ -192,11 +191,11 @@ class FloParser(Parser):
     )
     def boolean(self, p):
         return arbre_abstrait.Operation(p[1], p[0], p[2])
-    
+
     @_("boolean_value")
     def boolean(self, p):
         return p.boolean_value
-    
+
     @_("BOOLEAN")
     def boolean_value(self, p):
         return arbre_abstrait.Boolean(p.BOOLEAN)
