@@ -142,41 +142,47 @@ def gen_listeInstructions(listeInstructions):
 def gen_instruction(instruction):
     """Affiche le code arm correspondant à une instruction"""
     if type(instruction) == arbre_abstrait.Function:
-        inProgram, inBuiltins = tableSymboles.has(instruction.fct)
-        if not inProgram and not inBuiltins:
-            erreur(f"Unknown function {instruction.fct}")
-        else:
-            args = instruction.args.listArgs if instruction.args else []
-            argsType = [gen_expression(arg) for arg in args]
-            tableSymboles.checkArgsType(instruction.fct, argsType)
-            if inProgram:
-                arm_instruction("bl", f"_{instruction.fct}")
-                arm_instruction("add", "sp", f"#{tableSymboles.memory(instruction.fct)}")
-            else:
-                if instruction.fct == "lire":
-                    gen_lire()
-                elif instruction.fct == "ecrire":
-                    gen_ecrire(instruction)
-                else:
-                    erreur(f"Builtin function not found {instruction.fct}")
-
-        return tableSymboles.returnType(instruction.fct)
-
+        return gen_function(instruction)
     elif type(instruction) in [arbre_abstrait.While, arbre_abstrait.If]:
         gen_block_operation(instruction)
     elif type(instruction) == arbre_abstrait.Return:
-        function = tableSymboles.getFunction()
-        if not function:
-            erreur("Return keyword is only valid inside a function")
-        returnType = gen_expression(instruction.exp)
-        expectedType = tableSymboles.returnType(function)
-        if returnType != expectedType:
-            erreur(f"Incorrect return type expected {typeStr(expectedType)} got {typeStr(returnType)}")
-        arm_instruction("pop", "{r2}", comment="Return value")
-        arm_instruction("pop", "{fp, pc}")
+        gen_return(instruction)
     else:
         erreur("génération type instruction non implémenté " + typeStr(type(instruction)))
     return None
+
+
+def gen_function(instruction):
+    inProgram, inBuiltins = tableSymboles.has(instruction.fct)
+    if not inProgram and not inBuiltins:
+        erreur(f"Unknown function {instruction.fct}")
+    else:
+        args = instruction.args.listArgs if instruction.args else []
+        argsType = [gen_expression(arg) for arg in args]
+        tableSymboles.checkArgsType(instruction.fct, argsType)
+        if inProgram:
+            arm_instruction("bl", f"_{instruction.fct}")
+            arm_instruction("add", "sp", f"#{tableSymboles.memory(instruction.fct)}")
+        else:
+            if instruction.fct == "lire":
+                gen_lire()
+            elif instruction.fct == "ecrire":
+                gen_ecrire(instruction)
+            else:
+                erreur(f"Builtin function not found {instruction.fct}")
+    return tableSymboles.returnType(instruction.fct)
+
+
+def gen_return(instruction):
+    function = tableSymboles.getFunction()
+    if not function:
+        erreur("Return keyword is only valid inside a function")
+    returnType = gen_expression(instruction.exp)
+    expectedType = tableSymboles.returnType(function)
+    if returnType != expectedType:
+        erreur(f"Incorrect return type expected {typeStr(expectedType)} got {typeStr(returnType)}")
+    arm_instruction("pop", "{r2}", comment="Return value")
+    arm_instruction("pop", "{fp, pc}")
 
 
 def gen_ecrire(ecrire):
