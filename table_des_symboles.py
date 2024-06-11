@@ -74,17 +74,17 @@ class TableSymboles:
         self._depth -= 1
         gen_code.printift(f"Quitted '{function.name}'\n{self}")
 
-    def returnType(self, name):
+    def _get_symbol(self, name):
         symbol = self._symbols.get(name, self._builtins.get(name, None))
         if not symbol:
             erreur(f"Symbol {name} not found")
-        return types[symbol["type"]]
+        return symbol
+
+    def returnType(self, name):
+        return types[self._get_symbol(name)["type"]]
 
     def checkArgsType(self, name, args):
-        symbol = self._symbols.get(name, self._builtins.get(name, None))
-        if not symbol:
-            erreur(f"Symbol {name} not found")
-        argsTypes = symbol["args"]
+        argsTypes = self._get_symbol(name)["args"]
         if len(argsTypes) != len(args):
             erreur(f"Incorrect number of arguments, expected {len(argsTypes)} got {len(args)}")
         for type, arg in zip(argsTypes, args):
@@ -93,12 +93,16 @@ class TableSymboles:
                 erreur(f"Incorrect argument type, expected {gen_code.typeStr(type)} got {arg}")
 
     def address(self, name):
-        symbol = self._symbols.get(name, self._builtins.get(name, None))
-        if not symbol:
-            erreur(f"Symbol {name} not found")
+        symbol = self._get_symbol(name)
         if "args" in symbol:
             erreur(f"{name} is a function")
         return symbol["address"]
+
+    def memory(self, name):
+        symbol = self._get_symbol(name)
+        if "args" not in symbol:
+            erreur(f"{name} isn't a function")
+        return len(symbol["args"]) * 4
 
     def has(self, name):
         return (name in self._symbols, name in self._builtins)

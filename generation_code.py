@@ -114,13 +114,13 @@ def gen_programme(programme):
             gen_def_fonction(function)
 
     printifm("main:")
-    arm_instruction("push", "{fp,lr}", "", "", "")
-    arm_instruction("add", "fp", "sp", "#4", "")
+    arm_instruction("push", "{fp,lr}")
+    arm_instruction("add", "fp", "sp", "#4")
 
     gen_listeInstructions(programme.listeInstructions)
 
-    arm_instruction("mov", "r0", "#0", "", "")
-    arm_instruction("pop", "{fp, pc}", "", "", "")
+    arm_instruction("mov", "r0", "#0")
+    arm_instruction("pop", "{fp, pc}")
 
 
 def gen_def_fonction(f):
@@ -151,10 +151,7 @@ def gen_instruction(instruction, function=None):
             tableSymboles.checkArgsType(instruction.fct, argsType)
             if inProgram:
                 arm_instruction("bl", f"_{instruction.fct}")
-                '''for i in range(len(args)-1, -1, -1):
-                    arm_instruction("pop", "{r2}", "", "", f"Unstack arg {i}")'''
-                if tableSymboles.returnType(instruction.fct):
-                    arm_instruction("pop", "{r2}", "", "", "Returned value")
+                arm_instruction("add", "sp", f"#{tableSymboles.memory(instruction.fct)}")
             else:
                 if instruction.fct == "lire":
                     gen_lire()
@@ -193,10 +190,10 @@ def gen_lire():
     de caractère qui est interprétée comme un entier.
     """
     arm_instruction("ldr", "r0", "=.LC0", comment="Charge l’adresse de la chaîne de format pour scanf dans r0")
-    arm_instruction("sub", "sp", "sp", "#4", "Réserve de l’espace sur la pile pour stocker l’entier lu (on fait sp = sp -4)")
-    arm_instruction("movs", "r1", "sp", "", "Copie l’adresse de cet espace dans r1")
+    arm_instruction("sub", "sp", "sp", "#4", comment="Réserve de l’espace sur la pile pour stocker l’entier lu (on fait sp = sp -4)")
+    arm_instruction("movs", "r1", "sp", comment="Copie l’adresse de cet espace dans r1")
     arm_instruction("bl", "scanf", comment="Lance scanf pour lire l’entier et le stocker à l’adresse spécifiée par r1")
-    arm_instruction("pop", "{r2}", "", "", "Dépiler l'input dans r2")
+    arm_instruction("pop", "{r2}", comment="Dépiler l'input dans r2")
 
 
 def gen_block_operation(instruction):
@@ -222,20 +219,20 @@ def gen_expression(expression):
     """Affiche le code arm pour calculer et empiler la valeur d'une expression"""
     if type(expression) == arbre_abstrait.Function:
         instType = gen_instruction(expression)
-        arm_instruction("push", "{r2}", "", "", "")
+        arm_instruction("push", "{r2}")
         return instType
     elif type(expression) == arbre_abstrait.Operation:
         return gen_operation(expression)  # on calcule et empile la valeur de l'opération
     elif type(expression) == arbre_abstrait.Variable:
         return gen_variable(expression)
     elif type(expression) == arbre_abstrait.Integer:
-        arm_instruction("mov", "r1", "#" + str(expression.valeur), "", "")
+        arm_instruction("mov", "r1", "#" + str(expression.valeur))
         # on met sur la pile la valeur entière
-        arm_instruction("push", "{r1}", "", "", "")
+        arm_instruction("push", "{r1}")
         # on met sur la pile la valeur entière
     elif type(expression) == arbre_abstrait.Boolean:
-        arm_instruction("mov", "r1", "#" + str(1 if expression.valeur else 0), "", "")
-        arm_instruction("push", "{r1}", "", "", "")
+        arm_instruction("mov", "r1", "#" + str(1 if expression.valeur else 0))
+        arm_instruction("push", "{r1}")
     else:
         erreur("type d'expression inconnu " + typeStr(type(expression)))
     return type(expression)
@@ -261,9 +258,9 @@ def gen_operation(operation):
         type2 = gen_expression(operation.exp2)  # on calcule et empile la valeur de exp2
         if type1 != type2:
             erreur(f"Types incompatibles {typeStr(type1)} != {typeStr(type2)}")
-        arm_instruction("pop", "{r1}", "", "", "dépile exp2 dans r1")
+        arm_instruction("pop", "{r1}", comment="dépile exp2 dans r1")
 
-    arm_instruction("pop", "{r0}", "", "", "dépile exp1 dans r0")
+    arm_instruction("pop", "{r0}", comment="dépile exp1 dans r0")
 
     comparisons = {"==": "EQ", "!=": "NE", "<=": "LE", ">=": "GE", "<": "LT", ">": "GT"}
     if type1 == arbre_abstrait.Integer and gen_operation_integer(op):
@@ -281,9 +278,10 @@ def gen_operation(operation):
         arm_instruction(f"{labelTrue}:")
         arm_instruction("mov", "r0", "#1")
         arm_instruction(f"{labelFalse}:")
+        type1 = arbre_abstrait.Boolean
     else:
         erreur(f'operateur "{op}" non implémenté pour le type {typeStr(type1)}')
-    arm_instruction("push", "{r0}", "", "", "empile le résultat")
+    arm_instruction("push", "{r0}", comment="empile le résultat")
     return type1
 
 
@@ -295,9 +293,9 @@ def gen_operation_integer(op):
     # Voir: https://developer.arm.com/documentation/dui0497/a/the-cortex-m0-instruction-set/instruction-set-summary?lang=en
 
     if op in code.keys():
-        arm_instruction(code[op], "r0", "r1", "r0", "effectue l'opération r0" + op + "r1 et met le résultat dans r0")
+        arm_instruction(code[op], "r0", "r1", "r0", comment=f"effectue l'opération r0 {op} r1 et met le résultat dans r0")
     elif op == "-":
-        arm_instruction("sub", "r0", "r0", "r1", "effectue l'opération r0" + op + "r1 et met le résultat dans r0")
+        arm_instruction("sub", "r0", "r0", "r1", comment=f"effectue l'opération r0 {op} r1 et met le résultat dans r0")
     elif op == "/":
         arm_instruction("bl", "__aeabi_idiv")
     elif op == "%":
@@ -310,7 +308,7 @@ def gen_operation_integer(op):
 
 def gen_operation_boolean(op):
     if op == "et":
-        arm_instruction("mul", "r0", "r1", "r0", "effectue l'opération r0" + op + "r1 et met le résultat dans r0")
+        arm_instruction("mul", "r0", "r1", "r0", comment=f"effectue l'opération r0 {op} r1 et met le résultat dans r0")
     elif op == "ou":
         arm_instruction("add", "r0", "r1", "r0")
         arm_instruction("cmp", "r0", "#2")
