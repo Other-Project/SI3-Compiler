@@ -61,7 +61,7 @@ class TableSymboles:
         self._depth += 1
         self._function = function.name
         if function.declarationArgs:
-            for decl in function.declarationArgs.declarations:
+            for decl in reversed(function.declarationArgs.declarations):
                 self.add(decl)
         gen_code.printift(f"Entered '{function.name}'\n{self}")
 
