@@ -31,7 +31,7 @@ class TableSymboles:
         self._depth = 0
         self._function = None
 
-    def add(self, declaration):
+    def add(self, declaration:arbre_abstrait.Declaration|arbre_abstrait.DeclarationFunction):
         if declaration.type not in types.keys():
             gen_code.erreur(f"invalid type {declaration.type}")
         if self.has(declaration.name)[0]:
@@ -49,7 +49,7 @@ class TableSymboles:
             gen_code.erreur(f"Unknown declaration type {type(declaration).__name__}")
         self._symbols[declaration.name]["type"] = declaration.type
 
-    def remove(self, symbol):
+    def remove(self, symbol: str):
         if symbol not in self._symbols:
             gen_code.erreur(f"Symbol {symbol} not found")
         if "args" in self._symbols[symbol]:
@@ -57,42 +57,51 @@ class TableSymboles:
         self._symbols.pop(symbol)
         self._address += 4
 
-    def enterFunction(self, function):
-        self._depth += 1
+    def enterFunction(self, function: arbre_abstrait.DeclarationFunction):
+        self.enterBlock(False)
         self._function = function.name
         self._address += self.memory(self._function)
         if function.declarationArgs:
             for decl in function.declarationArgs.declarations:
                 self.add(decl)
-        self._address -= 4
         gen_code.printift(f"Entered '{function.name}'\n{self}")
 
     def quitFunction(self):
-        for symbol in list(
-            filter(
-                lambda symbol: self._symbols[symbol].get("depth", 0) >= self._depth,
-                self._symbols,
-            )
-        ):
-            self.remove(symbol)
+        removed = self.quitBlock(False)
         gen_code.printift(f"Quitted '{self._function}'\n{self}")
-        self._depth -= 1
-        self._address -= self.memory(self._function) - 4
+        self._address -= self.memory(self._function)
         self._function = None
+        return removed
+
+    def enterBlock(self, print=True):
+        self._depth += 1
+        if print:
+            gen_code.printift(f"Entering depth {self._depth}\n{self}")
+
+    def quitBlock(self, print=True):
+        if print:
+            gen_code.printift(f"Quitting depth {self._depth}\n{self}")
+        toRemove = list(filter(lambda symbol: self._symbols[symbol].get("depth", 0) >= self._depth, self._symbols))
+        for symbol in toRemove:
+            self.remove(symbol)
+        if print:
+            gen_code.printift(f"Quitted depth {self._depth}\n{self}")
+        self._depth -= 1
+        return toRemove
 
     def getFunction(self):
         return self._function
 
-    def _get_symbol(self, name):
+    def _get_symbol(self, name: str):
         symbol = self._symbols.get(name, self._builtins.get(name, None))
         if not symbol:
             gen_code.erreur(f"Symbol {name} not found")
         return symbol
 
-    def returnType(self, name):
+    def returnType(self, name: str):
         return types[self._get_symbol(name)["type"]]
 
-    def checkArgsType(self, name, args):
+    def checkArgsType(self, name: str, args):
         argsTypes = self._get_symbol(name)["args"]
         if len(argsTypes) != len(args):
             gen_code.erreur(f"Incorrect number of arguments, expected {len(argsTypes)} got {len(args)}")
@@ -101,22 +110,22 @@ class TableSymboles:
             if arg not in [types[t] for t in argTypes]:
                 gen_code.erreur(f"Incorrect argument type, expected {gen_code.typeStr(type)} got {gen_code.typeStr(arg)}")
 
-    def address(self, name):
+    def address(self, name: str):
         symbol = self._get_symbol(name)
         if "args" in symbol:
             gen_code.erreur(f"{name} is a function")
         return symbol["address"]
 
-    def memory(self, name):
+    def memory(self, name: str):
         symbol = self._get_symbol(name)
         if "args" not in symbol:
             gen_code.erreur(f"{name} isn't a function")
         return len(symbol["args"]) * 4
 
-    def has(self, name):
+    def has(self, name: str):
         return (name in self._symbols, name in self._builtins)
 
-    def _getRow(self, name, value):
+    def _getRow(self, name: str, value):
         args = value.get("args", None)
         return [
             name,

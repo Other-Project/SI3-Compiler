@@ -1,0 +1,32 @@
+entier pow(entier val, entier power){
+	si (power < 0) {
+		retourner -1; # Non supporté par simplicité
+	}
+	sinon si (power == 0) {
+		retourner 1;
+	}
+	sinon {
+		entier i = 1;
+		entier value = val; # pas necessaire mais c'est pour le teste
+		tantque(i < power){
+			value = val * val;
+			i = i + 1;
+		}
+		retourner value;
+	}
+}
+
+entier a = 3; #lire();
+entier a_pow = 3; #lire();
+si (a > 2){
+	entier b = pow(a, a_pow);
+	si (b > 3 * a){
+		entier c = 25;
+		ecrire(c);
+	}
+	sinon {
+		entier c = 50;
+		ecrire(c);
+	}
+}
+ecrire(-2);

@@ -80,7 +80,7 @@ def arm_nouvelle_etiquette():
     return ".e" + str(num_etiquette_courante)
 
 
-def gen_programme(programme):
+def gen_programme(programme: arbre_abstrait.Program):
     """
     Affiche le code arm correspondant à tout un programme
     """
@@ -117,26 +117,29 @@ def gen_programme(programme):
     arm_instruction("push", "{fp,lr}")
     arm_instruction("add", "fp", "sp", "#4")
 
-    gen_listeInstructions(programme.listeInstructions)
+    gen_listeInstructions(programme.listeInstructions, False)
 
     arm_instruction("mov", "r0", "#0")
     arm_instruction("pop", "{fp, pc}")
 
 
-def gen_def_fonction(f):
+def gen_def_fonction(f: arbre_abstrait.DeclarationFunction):
     tableSymboles.enterFunction(f)
     printifm(f"_{f.name}:")
     arm_instruction("push", "{fp,lr}")
     arm_instruction("add", "fp", "sp", "#4")
-    gen_listeInstructions(f.instructions)
-    arm_instruction("pop", "{fp, pc}")
+    gen_listeInstructions(f.instructions, False)
     tableSymboles.quitFunction()
 
 
-def gen_listeInstructions(listeInstructions):
+def gen_listeInstructions(listeInstructions: arbre_abstrait.Instructions, deallocate=True):
     """Affiche le code arm correspondant à une suite d'instructions"""
+    tableSymboles.enterBlock(deallocate)
     for instruction in listeInstructions.instructions:
         gen_instruction(instruction)
+    removed = tableSymboles.quitBlock(deallocate)
+    if deallocate:
+        arm_instruction("add", "sp", f"#{len(removed)*4}")
 
 
 def gen_instruction(instruction):
@@ -186,6 +189,8 @@ def gen_return(instruction):
     if returnType != expectedType:
         erreur(f"Incorrect return type expected {typeStr(expectedType)} got {typeStr(returnType)}")
     arm_instruction("pop", "{r2}", comment="Return value")
+    removed = list(filter(lambda symbol: tableSymboles._symbols[symbol].get("depth", 0) >= tableSymboles._depth, tableSymboles._symbols))
+    arm_instruction("add", "sp", f"#{len(removed)*4}")
     arm_instruction("pop", "{fp, pc}")
 
 
@@ -208,7 +213,7 @@ def gen_lire():
     arm_instruction("pop", "{r2}", comment="Dépiler l'input dans r2")
 
 
-def gen_block_operation(instruction):
+def gen_block_operation(instruction: arbre_abstrait.While | arbre_abstrait.If):
     endTrue = arm_nouvelle_etiquette()
     ifFalse = arm_nouvelle_etiquette()
 
@@ -230,7 +235,26 @@ def gen_block_operation(instruction):
 
 
 def gen_def_variable(instruction: arbre_abstrait.Declaration):
-    erreur("Not implemented yet")
+    tableSymboles.add(instruction)
+    declaredType = tableSymboles.returnType(instruction.name)
+    #arm_instruction("sub", "sp", "#4", comment=f"Move the SP to allocate space for the new variable")
+    if instruction.value:
+        valType = gen_expression(instruction.value)
+        if valType != declaredType:
+            erreur(f"Type mismatch, declared {typeStr(declaredType)}, assigned {typeStr(valType)}")
+        #arm_instruction("pop", "{r2}")
+    else:
+        arm_instruction("mov", "r2", f"#{declaredType.DEFAULT_VALUE}", comment="Default value")
+        arm_instruction("push", "{r2}", comment=f"Assign newly declared variable {instruction.name}")
+    #arm_instruction("str", "r2", get_memory_accessor(tableSymboles.address(instruction.name)), comment=f"Assign newly declared variable {instruction.name}")
+
+
+def get_memory_accessor(address):
+    if address > 0:
+        return f"[fp, #{address}]"
+    return f"[fp, #{-8 + address}]"
+    """spAddress = tableSymboles._address
+    return f"[sp, #{(address - spAddress)}]"""
 
 
 def gen_assign_variable(instruction: arbre_abstrait.Assignment):
@@ -243,7 +267,7 @@ def gen_assign_variable(instruction: arbre_abstrait.Assignment):
         erreur(f"Invalid assignment, expected type {typeStr(expectedType)}, got {typeStr(valueType)}")
     offset = tableSymboles.address(instruction.variable)
     arm_instruction("pop", "{r2}")
-    arm_instruction("str", "r2", f"[fp, #{offset}]", comment=f"Assign {instruction.variable}")
+    arm_instruction("str", "r2", get_memory_accessor(offset), comment=f"Assign {instruction.variable}")
     return tableSymboles.returnType(instruction.variable)
 
 
@@ -275,7 +299,7 @@ def gen_variable(variable):
     if not inProgram:
         erreur(f"Unknown variable {variable.valeur}")
     offset = tableSymboles.address(variable.valeur)
-    arm_instruction("ldr", "r2", f"[fp, #{offset}]", comment=f"Retrieve {variable.valeur}")
+    arm_instruction("ldr", "r2", get_memory_accessor(offset), comment=f"Retrieve {variable.valeur}")
     arm_instruction("push", "{r2}", comment=f"Stack {variable.valeur}")
     return tableSymboles.returnType(variable.valeur)
 
@@ -357,7 +381,7 @@ def gen_operation_boolean(op):
 def usage(options):
     print("usage: python3 generation_code.py [OPTIONS] NOM_FICHIER_SOURCE.flo")
     if options and len(options) > 0:
-        options = "\n\t".join(options) 
+        options = "\n\t".join(options)
         print(f"options:\n\t{options}")
     exit(1)
 
@@ -372,7 +396,7 @@ if __name__ == "__main__":
         usage(options.keys())
 
     if len(sys.argv) < 3:
-        afficher_code = True # -arm is the default
+        afficher_code = True  # -arm is the default
     else:
         for i in range(1, len(sys.argv) - 1):
             if sys.argv[i] in options:

@@ -189,6 +189,8 @@ class Else:
 
 
 class Integer:
+    DEFAULT_VALUE = 0
+    
     def __init__(self, valeur):
         self.valeur = valeur
 
@@ -205,6 +207,8 @@ class Variable:
 
 
 class Boolean:
+    DEFAULT_VALUE = 0
+
     def __init__(self, valeur):
         self.valeur = valeur
 
