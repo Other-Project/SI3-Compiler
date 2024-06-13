@@ -8,10 +8,6 @@ if __name__ == "__main__":
 
 import __main__ as gen_code
 
-if __name__ == "__main__":
-    print("Call generation_code.py instead")
-    exit(1)
-
 
 types = {
     "entier": arbre_abstrait.Integer,
@@ -34,7 +30,7 @@ class TableSymboles:
     def add(self, declaration:arbre_abstrait.Declaration|arbre_abstrait.DeclarationFunction):
         if declaration.type not in types.keys():
             gen_code.erreur(f"invalid type {declaration.type}")
-        if self.has(declaration.name)[0]:
+        if any(self.has(declaration.name)):
             gen_code.erreur(f"Name already used {declaration.name}")
 
         if type(declaration) == arbre_abstrait.DeclarationFunction:
