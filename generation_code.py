@@ -52,24 +52,20 @@ def typeStr(t):
 
 
 def arm_comment(comment):
-    """Fonction locale, permet d'afficher un commentaire dans le code arm."""
+    """Permet d'afficher un commentaire dans le code arm."""
     if comment != "":
-        printifm("\t\t @ " + comment)  # le point virgule indique le début d'un commentaire en ARM. Les tabulations sont là pour faire jolie.
+        printifm(f"@ {comment}")
     else:
         printifm("")
 
 
-def arm_instruction(opcode, op1="", op2="", op3="", comment=""):
+maxOps = 3
+def arm_instruction(opcode, *ops, comment=""):
     """
     Affiche une instruction ARM sur une ligne
     Par convention, les derniers opérandes sont nuls si l'opération a moins de 3 arguments.
     """
-    if op2 == "":
-        printifm("\t" + opcode + "\t" + op1 + "\t\t", end="")
-    elif op3 == "":
-        printifm("\t" + opcode + "\t" + op1 + ",\t" + op2 + "\t", end="")
-    else:
-        printifm("\t" + opcode + "\t" + op1 + ",\t" + op2 + ",\t" + op3, end="")
+    printifm(f"\t{opcode}\t" + ",\t".join(ops) + "\t\t"*(maxOps - len(ops)) + "\t", end="")
     arm_comment(comment)
 
 
