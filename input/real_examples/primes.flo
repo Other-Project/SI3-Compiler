@@ -1,0 +1,19 @@
+booleen is_prime(entier n){
+	entier divider = 2;
+	tantque (divider < n){
+		si (n % divider == 0){
+			retourner Faux;
+		}
+		divider = divider + 1; 
+	}
+	retourner Vrai;
+}
+
+entier min = 2;
+entier max = 100;
+tantque(min <= max){
+	si(is_prime(min)){
+		ecrire(min);
+	}
+	min = min + 1;
+}

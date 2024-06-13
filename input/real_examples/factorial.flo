@@ -1,0 +1,8 @@
+entier factorial(entier n){
+	si (n <= 0){ 
+		retourner 1;
+	}
+	retourner n * factorial(n-1);
+}
+
+ecrire(factorial(lire()));

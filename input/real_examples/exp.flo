@@ -1,0 +1,13 @@
+entier exp(entier n){  # Taylor series
+	entier sum = 1;
+	entier i = 1;
+	entier term = 1;
+
+	tantque(i < 20){
+		term = term * n/i; # Imprecision due à la division entière
+		sum = sum + term;
+		i = i + 1;
+	}
+	retourner sum;
+}
+ecrire(exp(lire()));

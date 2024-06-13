@@ -1,0 +1,17 @@
+entier sqrt(entier n) { # Renvoie la partie entière
+	si (n < 0){
+		retourner -1; # Unsupported
+	}
+	si (n < 2){
+		retourner n;
+	}
+
+	entier floor = sqrt(n / 4) * 2;
+	entier ceil = floor + 1;
+	si (ceil * ceil > n){
+		retourner floor;
+	}
+	retourner ceil;
+}
+
+ecrire(sqrt(lire()));

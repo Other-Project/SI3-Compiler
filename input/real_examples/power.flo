@@ -1,0 +1,12 @@
+entier pow(entier val, entier power){
+	si (power == 0) {
+		retourner 1;
+	}
+	si (power < 0) {
+		retourner 0; # On est sur des entiers, donc 1/pow(val, -power) reverra tjs 0
+	}
+	
+	retourner val * pow(val, power-1);
+}
+
+ecrire(pow(lire(), lire()));

@@ -1,0 +1,16 @@
+entier fibo(entier n){
+	si (n <= 0){
+		retourner 0;
+	}
+	sinon si (n == 1){
+		retourner 1;
+	}
+	retourner fibo(n-2) + fibo(n-1); # version naïve
+}
+
+entier iMax = 16;
+entier i = 0;
+tantque (i < iMax){
+	ecrire(fibo(i));
+	i = i + 1;
+}

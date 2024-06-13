@@ -1,0 +1,25 @@
+entier min(entier n1, entier n2, entier n3){
+	si (n1 <= n2 et n1 <= n3){
+		retourner n1;
+	}
+	sinon si (n2 <= n1 et n2 <= n3){
+		retourner n2;
+	}
+	retourner n3;
+}
+entier max(entier n1, entier n2, entier n3){
+	si (n1 >= n2 et n1 >= n3){
+		retourner n1;
+	}
+	sinon si (n2 >= n1 et n2 >= n3){
+		retourner n2;
+	}
+	retourner n3;
+}
+
+
+entier a = lire();
+entier b = lire();
+entier c = lire();
+ecrire(min(a,b,c));
+ecrire(max(a,b,c));

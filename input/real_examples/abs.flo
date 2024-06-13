@@ -1,0 +1,8 @@
+entier abs(entier n){
+	si (n < 0){
+		retourner -n;
+	}
+	retourner n;
+}
+
+ecrire(abs(lire()));
