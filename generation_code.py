@@ -272,7 +272,7 @@ def gen_assign_variable(instruction: arbre_abstrait.Assignment):
 def gen_expression(expression):
     """Affiche le code arm pour calculer et empiler la valeur d'une expression"""
     if type(expression) == arbre_abstrait.Function:
-        instType = gen_instruction(expression)
+        instType = gen_function(expression)
         arm_instruction("push", "{r2}")
         return instType
     elif type(expression) == arbre_abstrait.Operation:
