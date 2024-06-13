@@ -195,7 +195,8 @@ def gen_return(instruction):
         erreur(f"Incorrect return type expected {typeStr(expectedType)} got {typeStr(returnType)}")
     arm_instruction("pop", "{r2}", comment="Return value")
     removed = tableSymboles.symbolsToFree(2)
-    arm_instruction("add", "sp", f"#{len(removed)*4}")
+    if len(removed) > 0:
+        arm_instruction("add", "sp", f"#{len(removed)*4}")
     arm_instruction("pop", "{fp, pc}")
 
 
