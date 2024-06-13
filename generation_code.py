@@ -1,3 +1,4 @@
+import argparse
 import sys
 from analyse_lexicale import FloLexer
 from analyse_syntaxique import FloParser
@@ -7,8 +8,8 @@ from table_des_symboles import TableSymboles
 num_etiquette_courante = -1  # Permet de donner des noms différents à toutes les étiquettes (en les appelant e0, e1,e2,...)
 
 afficher_table = False
-afficher_code = False
 print_builtins = False
+output = None
 
 tableSymboles = TableSymboles()
 
@@ -24,8 +25,8 @@ def printifm(*args, **kwargs):
     Un print qui ne fonctionne que si la variable.flo afficher_table vaut Vrai.
     (permet de choisir si on affiche le code assembleur ou la table des symboles)
     """
-    if afficher_code:
-        print(*args, **kwargs)
+    if output:
+        print(*args, **kwargs, file=output)
 
 
 def printift(*args, **kwargs):
@@ -237,16 +238,13 @@ def gen_block_operation(instruction: arbre_abstrait.While | arbre_abstrait.If):
 def gen_def_variable(instruction: arbre_abstrait.Declaration):
     tableSymboles.add(instruction)
     declaredType = tableSymboles.returnType(instruction.name)
-    #arm_instruction("sub", "sp", "#4", comment=f"Move the SP to allocate space for the new variable")
     if instruction.value:
         valType = gen_expression(instruction.value)
         if valType != declaredType:
             erreur(f"Type mismatch, declared {typeStr(declaredType)}, assigned {typeStr(valType)}")
-        #arm_instruction("pop", "{r2}")
     else:
         arm_instruction("mov", "r2", f"#{declaredType.DEFAULT_VALUE}", comment="Default value")
         arm_instruction("push", "{r2}", comment=f"Assign newly declared variable {instruction.name}")
-    #arm_instruction("str", "r2", get_memory_accessor(tableSymboles.address(instruction.name)), comment=f"Assign newly declared variable {instruction.name}")
 
 
 def get_memory_accessor(address):
@@ -278,14 +276,12 @@ def gen_expression(expression):
         arm_instruction("push", "{r2}")
         return instType
     elif type(expression) == arbre_abstrait.Operation:
-        return gen_operation(expression)  # on calcule et empile la valeur de l'opération
+        return gen_operation(expression)
     elif type(expression) == arbre_abstrait.Variable:
         return gen_variable(expression)
     elif type(expression) == arbre_abstrait.Integer:
         arm_instruction("mov", "r1", "#" + str(expression.valeur))
-        # on met sur la pile la valeur entière
         arm_instruction("push", "{r1}")
-        # on met sur la pile la valeur entière
     elif type(expression) == arbre_abstrait.Boolean:
         arm_instruction("mov", "r1", "#" + str(1 if expression.valeur else 0))
         arm_instruction("push", "{r1}")
@@ -378,36 +374,30 @@ def gen_operation_boolean(op):
     return True
 
 
-def usage(options):
-    print("usage: python3 generation_code.py [OPTIONS] NOM_FICHIER_SOURCE.flo")
-    if options and len(options) > 0:
-        options = "\n\t".join(options)
-        print(f"options:\n\t{options}")
-    exit(1)
-
-
 if __name__ == "__main__":
-    afficher_arm = True
+    argParser = argparse.ArgumentParser(description="Generate assembly code from flo script", formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=50))
+    argParser.add_argument("filename")
+    argParser.add_argument("-o", "--output", action="store", help="Destination file")
+    argParser.add_argument("-arm", "--arm", action="store_true", help="Generate ARM assembly")
+    argParser.add_argument("-t", "-table", "--table", action="store_true", help="Display the symbol table")
+    argParser.add_argument("--builtins", action="store_true", help="Display builtins in the symbol tables")
+    args = argParser.parse_args()
+    afficher_table = args.table
+    print_builtins = args.builtins
+
     lexer = FloLexer()
     parser = FloParser()
-    options = {"-arm": "afficher_code", "-table": "afficher_table", "-builtin": "print_builtins"}
-
-    if len(sys.argv) < 2 or sys.argv[-1].startswith("-"):
-        usage(options.keys())
-
-    if len(sys.argv) < 3:
-        afficher_code = True  # -arm is the default
-    else:
-        for i in range(1, len(sys.argv) - 1):
-            if sys.argv[i] in options:
-                globals()[options[sys.argv[i]]] = True
-            else:
-                usage(options.keys())
-
-    with open(sys.argv[-1], "r") as f:
+    with open(args.filename, "r") as f:
+        if args.output:
+            output = open(args.output, "w")
+        elif args.arm:
+            output = sys.stdout
         data = f.read()
+
         try:
             arbre = parser.parse(lexer.tokenize(data))
             gen_programme(arbre)
         except EOFError:
             exit(1)
+        finally:
+            output.close()
