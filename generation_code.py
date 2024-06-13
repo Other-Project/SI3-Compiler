@@ -249,12 +249,6 @@ def gen_def_variable(instruction: arbre_abstrait.Declaration):
         arm_instruction("push", "{r2}", comment=f"Assign newly declared variable {instruction.name}")
 
 
-def get_memory_accessor(address):
-    if address > 0:
-        return f"[fp, #{address}]"
-    return f"[fp, #{address - 8}]"
-
-
 def gen_assign_variable(instruction: arbre_abstrait.Assignment):
     inProgram, _ = tableSymboles.has(instruction.variable)
     if not inProgram:
@@ -265,7 +259,7 @@ def gen_assign_variable(instruction: arbre_abstrait.Assignment):
         erreur(f"Invalid assignment, expected type {typeStr(expectedType)}, got {typeStr(valueType)}")
     offset = tableSymboles.address(instruction.variable)
     arm_instruction("pop", "{r2}")
-    arm_instruction("str", "r2", get_memory_accessor(offset), comment=f"Assign {instruction.variable}")
+    arm_instruction("str", "r2", f"[fp, #{offset}]", comment=f"Assign {instruction.variable}")
     return tableSymboles.returnType(instruction.variable)
 
 
@@ -295,7 +289,7 @@ def gen_variable(variable):
     if not inProgram:
         erreur(f"Unknown variable {variable.valeur}")
     offset = tableSymboles.address(variable.valeur)
-    arm_instruction("ldr", "r2", get_memory_accessor(offset), comment=f"Retrieve {variable.valeur}")
+    arm_instruction("ldr", "r2", f"[fp, #{offset}]", comment=f"Retrieve {variable.valeur}")
     arm_instruction("push", "{r2}", comment=f"Stack {variable.valeur}")
     return tableSymboles.returnType(variable.valeur)
 

@@ -23,7 +23,7 @@ class TableSymboles:
             "ecrire": {"type": "vide", "args": [["entier", "booleen"]]},
         }
         self._symbols = {}
-        self._address = 0
+        self._address = -8
         self._depth = 0
         self._function = None
 
@@ -56,10 +56,11 @@ class TableSymboles:
     def enterFunction(self, function: arbre_abstrait.DeclarationFunction):
         self.enterBlock(False)
         self._function = function.name
-        self._address += self.memory(self._function)
+        self._address += self.memory(self._function) + 8
         if function.declarationArgs:
             for decl in function.declarationArgs.declarations:
                 self.add(decl)
+        self._address -= 8
         gen_code.printift(f"Entered '{function.name}'\n{self}")
 
     def quitFunction(self):
