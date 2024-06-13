@@ -141,7 +141,7 @@ def gen_listeInstructions(listeInstructions: arbre_abstrait.Instructions, deallo
     for instruction in listeInstructions.instructions:
         gen_instruction(instruction)
     removed = tableSymboles.quitBlock(deallocate)
-    if deallocate:
+    if deallocate and len(removed) > 0:
         arm_instruction("add", "sp", f"#{len(removed)*4}")
 
 
@@ -172,7 +172,9 @@ def gen_function(instruction):
         tableSymboles.checkArgsType(instruction.fct, argsType)
         if inProgram:
             arm_instruction("bl", f"_{instruction.fct}")
-            arm_instruction("add", "sp", f"#{tableSymboles.memory(instruction.fct)}")
+            memory = tableSymboles.memory(instruction.fct)
+            if memory > 0:
+                arm_instruction("add", "sp", f"#{memory}")
         else:
             if instruction.fct == "lire":
                 gen_lire()
@@ -192,7 +194,7 @@ def gen_return(instruction):
     if returnType != expectedType:
         erreur(f"Incorrect return type expected {typeStr(expectedType)} got {typeStr(returnType)}")
     arm_instruction("pop", "{r2}", comment="Return value")
-    removed = list(filter(lambda symbol: tableSymboles._symbols[symbol].get("depth", 0) > 1, tableSymboles._symbols))
+    removed = tableSymboles.symbolsToFree(2)
     arm_instruction("add", "sp", f"#{len(removed)*4}")
     arm_instruction("pop", "{fp, pc}")
 

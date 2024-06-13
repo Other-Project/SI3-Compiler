@@ -75,10 +75,13 @@ class TableSymboles:
         if print:
             gen_code.printift(f"Entering depth {self._depth}\n{self}")
 
+    def symbolsToFree(self, depth):
+        return list(filter(lambda symbol: self._symbols[symbol].get("depth", -1) >= depth, self._symbols))
+
     def quitBlock(self, print=True):
         if print:
             gen_code.printift(f"Quitting depth {self._depth}\n{self}")
-        toRemove = list(filter(lambda symbol: self._symbols[symbol].get("depth", 0) >= self._depth, self._symbols))
+        toRemove = self.symbolsToFree(self._depth)
         for symbol in toRemove:
             self.remove(symbol)
         if print:
