@@ -60,12 +60,14 @@ def arm_comment(comment):
 
 
 maxOps = 3
+
+
 def arm_instruction(opcode, *ops, comment=""):
     """
     Affiche une instruction ARM sur une ligne
     Par convention, les derniers opérandes sont nuls si l'opération a moins de 3 arguments.
     """
-    printifm(f"\t{opcode}\t" + ",\t".join(ops) + "\t\t"*(maxOps - len(ops)) + "\t", end="")
+    printifm(f"\t{opcode}\t" + ",\t".join(ops) + "\t\t" * (maxOps - len(ops)) + "\t", end="")
     arm_comment(comment)
 
 
@@ -190,7 +192,7 @@ def gen_return(instruction):
     if returnType != expectedType:
         erreur(f"Incorrect return type expected {typeStr(expectedType)} got {typeStr(returnType)}")
     arm_instruction("pop", "{r2}", comment="Return value")
-    removed = list(filter(lambda symbol: tableSymboles._symbols[symbol].get("depth", 0) >= tableSymboles._depth, tableSymboles._symbols))
+    removed = list(filter(lambda symbol: tableSymboles._symbols[symbol].get("depth", 0) > 1, tableSymboles._symbols))
     arm_instruction("add", "sp", f"#{len(removed)*4}")
     arm_instruction("pop", "{fp, pc}")
 
@@ -250,9 +252,7 @@ def gen_def_variable(instruction: arbre_abstrait.Declaration):
 def get_memory_accessor(address):
     if address > 0:
         return f"[fp, #{address}]"
-    return f"[fp, #{-8 + address}]"
-    """spAddress = tableSymboles._address
-    return f"[sp, #{(address - spAddress)}]"""
+    return f"[fp, #{address - 8}]"
 
 
 def gen_assign_variable(instruction: arbre_abstrait.Assignment):
