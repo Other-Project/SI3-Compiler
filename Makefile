@@ -12,7 +12,7 @@ syntatic: $(XML)
 lexical: $(TXT)
 all: $(TXT)  $(XML) $(S) $(EXE)
 clean:
-	@rm -r $(OUTPUT_DIR)
+	@[ -e $(OUTPUT_DIR) ] && rm -r $(OUTPUT_DIR) || true
 
 $(OUTPUT_DIR)/%: $(OUTPUT_DIR)/%.S
 	@echo "Compilation: $*"
