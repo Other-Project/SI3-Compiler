@@ -19,7 +19,7 @@ $(OUTPUT_DIR)/%: $(OUTPUT_DIR)/%.S
 
 $(OUTPUT_DIR)/%.S: input/%.flo
 	@echo "Generation de l'ASM: $*"
-	@-python3 generation_code.py -arm $< > $(OUTPUT_DIR)/$*.S
+	@-python3 generation_code.py --arm -o $(OUTPUT_DIR)/$*.S $<
 
 $(OUTPUT_DIR)/%.xml: input/%.flo
 	@echo "Analyse syntaxique: $*"

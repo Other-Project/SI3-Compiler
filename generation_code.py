@@ -1,5 +1,6 @@
 import argparse
 import sys
+import textwrap
 from analyse_lexicale import FloLexer
 from analyse_syntaxique import FloParser
 import arbre_abstrait
@@ -86,23 +87,26 @@ def gen_programme(programme: arbre_abstrait.Program):
     Affiche le code arm correspondant à tout un programme
     """
 
-    header = """
-.global __aeabi_idiv
-.global __aeabi_idivmod
-.boolean_or:
-    mov r0, #1
-	bx lr
-.boolean_not:
-    mov r0, #0
-	bx lr
-.LC0:
-	.ascii	"%d\\000"
-	.align	2
-.LC1:
-	.ascii	"%d\\012\\000"
-	.text
-	.align	2
-	.global	main"""
+    header = textwrap.dedent(
+        """\
+        .global __aeabi_idiv
+        .global __aeabi_idivmod
+        .boolean_or:
+        	mov r0,	#1
+        	bx lr
+        .boolean_not:
+        	mov r0,	#0
+        	bx lr
+        .LC0:
+        	.ascii	"%d\\000"
+        	.align	2
+        .LC1:
+        	.ascii	"%d\\012\\000"
+        	.text
+        	.align	2
+        	.global	main
+        """
+    )
     printifm(header)
 
     if programme.listeFunctions:
@@ -388,10 +392,8 @@ if __name__ == "__main__":
     lexer = FloLexer()
     parser = FloParser()
     with open(args.filename, "r") as f:
-        if args.output:
-            output = open(args.output, "w")
-        elif args.arm:
-            output = sys.stdout
+        if args.arm:
+            output = open(args.output, "w") if args.output else sys.stdout
         data = f.read()
 
         try:
@@ -400,4 +402,5 @@ if __name__ == "__main__":
         except EOFError:
             exit(1)
         finally:
-            output.close()
+            if output:
+                output.close()
