@@ -7,7 +7,7 @@ entier pow(entier val, entier power){
 	}
 	sinon {
 		entier i = 1;
-		entier value = val; # pas necessaire mais c'est pour le teste
+		entier value = val; # pas nécessaire mais c'est pour le test
 		tantque(i < power){
 			value = val * val;
 			i = i + 1;

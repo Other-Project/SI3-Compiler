@@ -1,9 +1,0 @@
-booleen f(){
-	retourner 10;
-}
-entier g(){
-	retourner Vrai;
-}
-
-ecrire(f());
-ecrire(g());
